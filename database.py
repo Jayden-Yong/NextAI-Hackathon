@@ -1,6 +1,13 @@
 import pandas as pd
 import pymysql
 
+# MySQL configuration
+DB_CONFIG = {
+    'host':'',
+    'user':'',
+    'password':'',
+    'database':''
+}
 # load data from mysql into pandas dataframe
 def load_data():
     connection = pymysql.connect(**DB_CONFIG)

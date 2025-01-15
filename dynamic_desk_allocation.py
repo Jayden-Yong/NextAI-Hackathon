@@ -1,5 +1,7 @@
+from flask import Flask, render_template ,request,jsonify
 import pandas as pd
 import numpy as np
+import database
 from math import sqrt
 
 # fetch booking data
@@ -50,3 +52,28 @@ def find_nearest_desk(employees,target_employee,desks):
             
     return nearest_desk
 
+
+def main_allocate_task():
+        # parse the request data
+    data = request.json
+    employee_id = data.get('employee_id')
+
+    # load data
+    employees,desks = database.load_data()
+
+    # find target employee
+    target_employee = employees[employees['employee_id']==employee_id]
+
+    if target_employee.empty:
+        return jsonify({'error':'Employee not found'}),404
+    
+    target_employee = target_employee.iloc[0]
+
+    # call the desk allocation function
+    assigned_desk = find_nearest_desk(employees,target_employee,desks)
+
+    if assigned_desk is not None:
+        return jsonify({"assigned_desk":assigned_desk['desk_id']})
+    
+    else:
+        return jsonify({'error':'no available desks'}),400
