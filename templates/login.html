@@ -49,23 +49,25 @@
     <body>
         <section>
             <div class="login-form">
-                <div class="d-flex justify-content-center align-items-center gap-3">
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" class="me-3">
-                    <span class="poppins-semibold flg">Hybrid Hub</span>
+                <div class="d-flex justify-content-center align-items-center gap-4 mb-4">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}">
+                    <span class="poppins-bold fxxl">Hybrid Hub</span>
                 </div>
                 
-                <!--
-
                 <form action="{{ url_for('verify_login') }}" method="post" onsubmit="return validateForm()">
-                    <input type="text" id="userID" class="text-field poppins-semibold fxs" name="userID" placeholder="User ID">
-                    <div id="userIDError" class="error-message"></div>
-
-                    <input type="password" id="password" class="text-field poppins-semibold fxs" name="password" placeholder="Password">
-                    <div id="passwordError" class="error-message"></div>
-
-                    <button type="submit">Login</button>
+                    <div class="mb-4">
+                        <input type="text" id="userID" class="text-field poppins-semibold fxs" name="userID" placeholder="Enter your ID">
+                        <div id="userIDError" class="error-message"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <input type="password" id="password" class="text-field poppins-semibold fxs" name="password" placeholder="Password">
+                        <div id="passwordError" class="error-message"></div>
+                    </div>
+                    
+                    <button class="login-btn poppins-bold fxs" type="submit">Login</button>
                 </form>
-                -->
+
             </div>
         </section>
 
