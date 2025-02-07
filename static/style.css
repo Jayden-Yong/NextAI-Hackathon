@@ -1,0 +1,152 @@
+@import url(libs/bootstrap.min.css);
+@import url(libs/fonts.css);
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300,0..1,-50..200");
+
+:root{
+    --bg-color: #EDE8F5;
+    --theme-1: #ADBBDA;
+    --theme-2: #8697C4;
+    --theme-3: #7091E6;
+    --theme-4: #3D52A0;
+
+    --font-size-xs: 0.75rem; 
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --font-size-xxl: 2rem; 
+}
+
+/* Responsive typography using Bootstrap breakpoints */
+@media (min-width: 576px) {
+    :root {
+        --font-size-xs: 0.875rem;
+        --font-size-sm: 1rem;
+        --font-size-md: 1.125rem;
+        --font-size-lg: 1.375rem;
+        --font-size-xl: 1.625rem;
+        --font-size-xxl: 2.125rem;
+    }
+}
+
+@media (min-width: 768px) {
+    :root {
+        --font-size-xs: 1rem;
+        --font-size-sm: 1.125rem;
+        --font-size-md: 1.25rem;
+        --font-size-lg: 1.5rem;
+        --font-size-xl: 1.75rem;
+        --font-size-xxl: 2.25rem;
+    }
+}
+
+@media (min-width: 992px) {
+    :root {
+        --font-size-xs: 1.125rem;
+        --font-size-sm: 1.25rem;
+        --font-size-md: 1.375rem;
+        --font-size-lg: 1.625rem;
+        --font-size-xl: 1.875rem;
+        --font-size-xxl: 2.375rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    :root {
+        --font-size-xs: 1.25rem;
+        --font-size-sm: 1.375rem;
+        --font-size-md: 1.5rem;
+        --font-size-lg: 1.75rem;
+        --font-size-xl: 2rem;
+        --font-size-xxl: 2.5rem;
+    }
+}
+
+/** Responisve Font Size **/
+.fxs{
+    font-size: var(--font-size-xs);
+}
+
+.fsm{
+    font-size: var(--font-size-sm);
+}
+
+.fmd{
+    font-size: var(--font-size-md);
+}
+
+.flg{
+    font-size: var(--font-size-lg);
+}
+
+.fxl{
+    font-size: var(--font-size-xl);
+}
+
+.fxxl{
+    font-size: var(--font-size-xxl);
+}
+
+/** Default Setups **/
+*{
+    background: transparent;
+    transition: 0.18s ease-out;
+}
+
+html{
+    scroll-behavior: smooth;
+}
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+/** Adjustments for Google Icons **/
+.material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+}
+
+body{
+    background-color: var(--bg-color);
+}
+
+.login-form{
+    background-color: var(--bg-color);
+    position: relative;
+    height: auto;
+    width: 50vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    padding: 2rem;
+    box-sizing: border-box;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 2;
+}
+
+.login-form img{
+    width: 5em;
+    height: auto;
+}
+
+.text-field{
+    position: relative;
+    width: 100%;
+    padding: 0.8rem;
+    border: solid 0.2em var(--theme-1);
+    border-radius: 1rem;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
