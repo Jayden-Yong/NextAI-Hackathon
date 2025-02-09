@@ -12,3 +12,6 @@ __pycache__/
 # Ignore IDE-specific files
 .vscode/
 .idea/
+
+# EER Diagrams
+*.mwb
