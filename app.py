@@ -1,5 +1,6 @@
 from flask import Flask, render_template ,request,jsonify, url_for
 from dynamic_desk_allocation import main_allocate_task
+import ai_function
 import pandas as pd
 import pymysql
 
@@ -19,6 +20,13 @@ def verify_login():
 @app.route('/allocate-desk', methods=['POST'])
 def allocate_desk():
     main_allocate_task()
+
+
+def recommendation_f2f_work():
+    return jsonify(ai_function.recommendation_f2f)
+
+def recommendation_meeting():
+    return jsonify(ai_function.recommendation_meeting)
 
 
 if __name__ == '__main__':
