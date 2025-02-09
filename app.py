@@ -30,6 +30,7 @@ def verify_login():
     password = request.form['password']
     
     accounts = db.load_accounts()
+    employees = db.load_employees()
 
     # Check if the email exists
     if email in accounts['email'].values:
@@ -40,7 +41,9 @@ def verify_login():
 
             # Check user privilege
             if accounts.loc[accounts['email'] == email, 'access'].values[0] == 0:
-                return redirect(url_for('admin'))
+                id = accounts.loc[accounts['email'] == email, 'employeeID'].values[0]
+                data = employees.loc[employees['employeeID'] == id, ['employeeID','name','prefDays','departmentID']].values[0]
+                return redirect(url_for('admin'), email=email, data=tuple(data))
             elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
                 return redirect(url_for('user'))
             
