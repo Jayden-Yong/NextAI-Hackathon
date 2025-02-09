@@ -10,7 +10,6 @@
         <!-- CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         
-
         <!-- Google Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,16 +52,22 @@
                     <img src="{{ url_for('static', filename='images/logo.png') }}">
                     <span class="poppins-bold fxxl">Hybrid Hub</span>
                 </div>
+
+                {% if error %}
+                    <div class="text-center error-note mb-4">
+                        <span class="poppins-semibold fxs">{{ error }}</span>
+                    </div>
+                {% endif %}
                 
-                <form action="{{ url_for('verify_login') }}" method="post" onsubmit="return validateForm()">
+                <form action="{{ url_for('verify_login') }}" method="post" onsubmit="return validateForm()" style="width: 100%;">
                     <div class="mb-4">
-                        <input type="text" id="userID" class="text-field poppins-semibold fxs" name="userID" placeholder="Enter your ID">
-                        <div id="userIDError" class="error-message"></div>
+                        <input type="email" id="email" class="text-field poppins-semibold fxs" name="email" placeholder="Enter your email">
+                        <div id="emailError" class="error-message poppins-semibold"></div>
                     </div>
                     
                     <div class="mb-4">
                         <input type="password" id="password" class="text-field poppins-semibold fxs" name="password" placeholder="Password">
-                        <div id="passwordError" class="error-message"></div>
+                        <div id="passwordError" class="error-message poppins-semibold"></div>
                     </div>
                     
                     <button class="login-btn poppins-bold fxs" type="submit">Login</button>
@@ -73,16 +78,16 @@
 
         <script>
             function validateForm() {
-                var userID = document.getElementById('userID').value;
+                var userID = document.getElementById('email').value;
                 var password = document.getElementById('password').value;
                 var isValid = true;
     
                 // Clear previous error messages
-                document.getElementById('userIDError').innerText = '';
+                document.getElementById('emailError').innerText = '';
                 document.getElementById('passwordError').innerText = '';
     
                 if (userID === '') {
-                    document.getElementById('userIDError').innerText = 'User ID is required';
+                    document.getElementById('emailError').innerText = 'User ID is required';
                     isValid = false;
                 }
     

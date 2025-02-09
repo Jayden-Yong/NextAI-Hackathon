@@ -8,7 +8,7 @@ client = OpenAI(api_key = api_key ,base_url = "https://api.deepseek.com")
 
 
 def generate(prompt):
-    schema = load_data()
+    employees,desks,booking,department = load_data()
     # expect input like this
     # {
     #     "input_text": "desired inputs to ask "
@@ -25,21 +25,32 @@ def generate(prompt):
         "recommendation": "recommendation......."
     }
     """
+    # convert dataframe to string 
+    schema = employees.to_string()+" "+desks.to_string()+" "+booking.to_string()+" "+department.to_string()
 
+    # concatenate the database and the prompt
     user_prompt = prompt+" "+schema
 
     messages = [{"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}]
 
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=messages,
-        response_format={
-            'type': 'json_object'
-        }
-    )
+    try:
+        # Call the API
+        response = client.chat.completions.create(
+            model="deepseek-reasoning",  # Replace with your model name
+            messages=messages,
+            response_format={"type": "json_object"}  # Ensure the API supports this
+        )
 
-    return (json.loads(response.choices[0].message.content))
+        # Parse the response
+        response_json = json.loads(response.choices[0].message.content)
+        return response_json
+
+    except Exception as e:
+        # Handle errors
+        print(f"An error occurred: {e}")
+        return {"error": str(e)}
+
     # returns 
     # {
     #     "recommendations" : "response"
