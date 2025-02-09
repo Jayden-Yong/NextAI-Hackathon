@@ -25,3 +25,10 @@ def load_data():
     department = pd.read_sql("SELECT * FROM department",connect_db)
     connect_db.close()
     return employees,desks,booking,department
+
+
+def load_accounts():
+    con = connect_db()
+    accounts = pd.read_sql("SELECT * FROM accounts",con)
+    con.close()
+    return accounts
