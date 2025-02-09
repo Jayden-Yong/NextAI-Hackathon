@@ -1,13 +1,7 @@
 import pandas as pd
 import pymysql
 
-# (DICT) MySQL configuration
-DB_CONFIG = {
-    'host':'localhost',
-    'user':'root',
-    'password':'fop2024',
-    'database':'hybridhub'
-}
+from config import DB_CONFIG
 
 # Connection establisher
 def connect_db():
@@ -17,7 +11,17 @@ def connect_db():
 # SQL command related methods beyond this point
 # load data from mysql into pandas dataframe
 def load_data():
+
+    # employees data
     employees = pd.read_sql("SELECT * FROM employees",connect_db)
+
+    # desks details data
     desks = pd.read_sql("SELECT * FROM desks",connect_db)
+
+    # booking details data
+    booking = pd.read_sql("SELECT * FROM booking",connect_db)
+
+    # department data for employees
+    department = pd.read_sql("SELECT * FROM department",connect_db)
     connect_db.close()
-    return employees,desks
+    return employees,desks,booking,department
