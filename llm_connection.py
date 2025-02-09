@@ -1,14 +1,13 @@
 from openai import OpenAI
 from config import api_key
-from flask import jsonify,request
-from database import load_data
+from database import load_employees
 import json
 
 client = OpenAI(api_key = api_key ,base_url = "https://api.deepseek.com")
 
 
 def generate(prompt):
-    schema = load_data()
+    employees,desks,booking,department = load_employees()
     # expect input like this
     # {
     #     "input_text": "desired inputs to ask "
@@ -31,15 +30,23 @@ def generate(prompt):
     messages = [{"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}]
 
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=messages,
-        response_format={
-            'type': 'json_object'
-        }
-    )
+    try:
+        # Call the API
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",  
+            messages=messages,
+            response_format={"type": "json_object"} ,
+            max_tokens=50
+        )
 
-    return (json.loads(response.choices[0].message.content))
+        response_json = json.loads(response.choices[0].message.content)
+        return response_json
+
+    except Exception as e:
+        # Handle errors
+        print(f"An error occurred: {e}")
+        return {"error": str(e)}
+
     # returns 
     # {
     #     "recommendations" : "response"
