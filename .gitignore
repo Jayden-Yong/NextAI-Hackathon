@@ -17,4 +17,4 @@ __pycache__/
 *.mwb
 
 # database configuration
-*.config.py
+config.py
