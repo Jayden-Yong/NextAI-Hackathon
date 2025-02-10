@@ -24,7 +24,10 @@ def generate(prompt):
         "recommendation": "recommendation......."
     }
     """
+    # convert dataframe to string 
+    schema = employees.to_string()+" "+desks.to_string()+" "+booking.to_string()+" "+department.to_string()
 
+    # concatenate the database and the prompt
     user_prompt = prompt+" "+schema
 
     messages = [{"role": "system", "content": system_prompt},
