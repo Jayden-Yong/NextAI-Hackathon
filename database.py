@@ -14,7 +14,7 @@ def connect_db():
 
 # SQL command related methods beyond this point
 # load data from mysql into pandas dataframe
-def load_employees():
+def load_allData():
     con = connect_db()
     # employees data
     employees = pd.read_sql("SELECT * FROM employee",con)
@@ -30,6 +30,10 @@ def load_employees():
     
     return employees,desks,booking,department
 
+def load_employees():
+    con = connect_db()
+    employees = pd.read_sql("SELECT * FROM employee",con)
+    return employees
 
 def load_accounts():
     con = connect_db()

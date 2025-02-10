@@ -2,17 +2,23 @@
 
 {% block title %}AdminHub{% endblock %}
 
-{% block content %}
-<div id="sidebar" class="sidebar">
-    <div class="sidebar-body">
-        <a href="#" class="d-flex align-items-center gap-2">
-            <i class="bi bi-grid fxs"></i>
-            <span class="poppins-semibold fxs">Dashboard</span>
-        </a>
-    </div>
-</div>
-<div id="main-content">
-    <!-- Your main content goes here -->
-</div>
-
+{% block nav_elements %}
+<a href="#" class="nav-item d-flex align-items-center gap-3 nav-active">
+    <i class="bi bi-columns-gap"></i>
+    <span class="poppins-semibold">Dashboard</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-calendar4-event"></i>
+    <span class="poppins-semibold">Desk Booking</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-people"></i>
+    <span class="poppins-semibold">Meeting Rooms</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-graph-up"></i>
+    <span class="poppins-semibold">Analytics</span>
+</a>
 {% endblock %}
+
+{% block content %}{% endblock %}

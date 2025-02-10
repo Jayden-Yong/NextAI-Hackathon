@@ -1,13 +1,13 @@
 from openai import OpenAI
 from config import api_key
-from database import load_employees
+from database import load_allData
 import json
 
 client = OpenAI(api_key = api_key ,base_url = "https://api.deepseek.com")
 
 
 def generate(prompt):
-    employees,desks,booking,department = load_employees()
+    employees,desks,booking,department = load_allData()
     # expect input like this
     # {
     #     "input_text": "desired inputs to ask "
