@@ -23,25 +23,12 @@
                     <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}">
                     <span class="poppins-bold fxl">Hybrid Hub</span>
                 </div>
-                <div class="d-flex align-items-center ms-4" id="nav-toggle">
-                    <i class="bi bi-list fxl"></i>
+                <div class="d-flex align-items-center ms-5 gap-3">
+                    {% block nav_elements %}{% endblock %}
                 </div>
             </div>
         </header>
         {% block content %}{% endblock %}
     </body>
 
-    <script>
-        document.getElementById("nav-toggle").onclick = function() {
-            var sidebar = document.getElementById("sidebar");
-            var mainContent = document.getElementById("main-content");
-            if (sidebar.style.width === "250px") {
-                sidebar.style.width = "0";
-                mainContent.style.marginLeft = "0";
-            } else {
-                sidebar.style.width = "250px";
-                mainContent.style.marginLeft = "250px";
-            }
-        }
-    </script>
 </html>

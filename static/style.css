@@ -15,10 +15,9 @@
 
 :root{
     --bg-color: #ede8f5;
-    --theme-1: #ADBBDA;
-    --theme-2: #8697C4;
-    --theme-3: #7091E6;
-    --theme-4: #3D52A0;
+    --theme-1: #A0E4F1;
+    --theme-2: #cfdaf0;
+    --theme-3: #4A4DE7;
 
     --font-size-xs: 0.75rem; 
     --font-size-sm: 0.875rem;
@@ -110,6 +109,19 @@ a{
 }
 
 /** General classes **/
+.nav-item{
+    padding: 0.5rem 1rem;
+    color: #000;
+    font-size: 1.1rem;
+    border-radius: 0.5rem;
+    transition: color 0.3s ease, background-color 0.8s ease;
+}
+
+.nav-active, .nav-item:hover{
+    background-color: var(--theme-2);
+    color: var(--theme-3);
+}
+
 header{
     position: fixed;
     width: 100%;
@@ -153,6 +165,8 @@ header{
 body{
     background-color: var(--bg-color);
 }
+
+/** LOGIN PAGE **/
 
 .login-form{
     /*background-color: var(--bg-color);*/
@@ -215,7 +229,7 @@ body{
 }
 
 .text-field:focus{
-    border-bottom-color: var(--theme-3);
+    border-bottom-color: var(--theme-2);
     background-color: rgba(0, 0, 0, 0.4);
 }
 
@@ -237,44 +251,4 @@ body{
 .login-btn:hover{
     background-color: #ffffff;
     backdrop-filter: blur(0px);
-}
-
-/* Sidebar styles */
-.sidebar {
-    height: 100%;
-    width: 0;
-    position: fixed;
-    z-index: 1;
-    top: 10vh;
-    left: 0;
-
-    background-color: var(--bg-color);
-
-    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1),
-                4px 0 20px rgba(0, 0, 0, 0.1);
-    overflow-x: hidden;
-
-    transition: 0.5s;
-}
-
-.sidebar-body{
-    padding: 4rem 1rem;
-}
-
-.sidebar-body a{
-    padding: 0.4rem 0.8rem;
-    color: #000000;
-    border-radius: 0.6rem;
-    transition: color 0.05s ease, background-color 0.05s ease;
-}
-
-.sidebar-body a:hover{
-    color: var(--theme-4);
-    background-color: #ddcef6;
-}
-
-/* Main content styles */
-#main-content {
-    transition: margin-left 0.5s;
-    padding: 16px;
 }
