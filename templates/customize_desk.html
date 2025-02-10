@@ -1,0 +1,336 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- css file -->
+    <link rel="stylesheet" href="style.css">
+    <!-- import interact js library  -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <title>Customize layout</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-image: url('/static/images/layout-setup-background.jpg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            opacity: 100%;
+        }
+
+        #layout {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            position: relative;
+            margin-top: 20px;
+            background-image: url('/static/images/floor-background.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Style for the box */
+        .setup-box {
+            width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: 20px auto;
+        }
+        #saveBtn{
+            font-family: 'Poppins', sans-serif;
+            width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #396592;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            margin: 20px auto;
+        }
+        #saveBtn:hover{
+            background: #81a6ce;
+        }
+
+        /* Style for labels */
+        label {
+            font-family: 'Poppins', sans-serif;
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: rgb(75, 75, 75);
+        }
+
+        /* Style for input fields */
+        input {
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Style for the button */
+        button {
+            font-family: 'Poppins', sans-serif;
+            margin-top: 15px;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #396592;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }       
+
+        /* styling for title (customize your workspace layout) */
+        .title-h1 {
+            --color-one: hsl(210 80% 50%);
+            --color-two: hsl(320 100% 75%);
+            --stretch-multiplier: 5;
+            font-size: clamp(2rem, 14vmin, 8rem);
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            display: grid;
+            line-height: 1;
+            text-align: left;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        [aria-hidden] {
+            display: flex;
+            gap: 0.02ch;
+            align-items: center;
+            color: white;
+        }
+
+        .stretch-o {
+            height: 1.12ch;
+            width: calc(var(--stretch) * 1.16ch);
+            translate: 0 -0.01ch;
+            border: 0.25ch solid white;
+            border-radius: 1ch;
+            transition: width 0.2s;
+            position: relative;
+        }
+
+        .title-h1 {
+            color: white;
+            --stretch: 1;
+        }
+
+        .title-h1:hover {
+            --stretch: var(--stretch-multiplier);
+        }
+
+        .stretch-o:after,
+        .stretch-o:before {
+            content: "";
+            border: 0.25ch solid var(--color);
+            position: absolute;
+            inset: -0.25ch;
+            border-radius: 1ch;
+            opacity: calc(-1 + var(--stretch));
+            transition: opacity 0.2s;
+        }
+
+        .stretch-o:before {
+            --color: var(--color-one);
+        }
+
+        .stretch-o:after {
+            --color: var(--color-two);
+            mask: radial-gradient(circle at top left, white, transparent);
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="title-h1">
+        <span style="font-size: 40;">Customize</span>
+        <span class="sr-only" style="font-size: 50;">Your</span>
+        <span aria-hidden="true">
+            <span>Y</span>
+            <span class="stretch-o"></span>
+            <span>ur</span>
+        </span>
+        <span style="font-size: 50;">Workspace Layout</span>
+    </h1>
+
+    <div class="setup-box">
+        <label for="deskCount">Number of Desks:</label>
+        <input type="number" id="deskCount" value="2" min="0" max="21">
+
+        <label for="meetingCount">Number of Meeting Rooms:</label>
+        <input type="number" id="meetingCount" value="1" min="0" max="10">
+        <button onclick="createItems()">Create Items</button>
+    </div>
+        <div id="layout" style="border-radius: 5%;"></div>
+        <button  id="saveBtn">Save Button</button>
+        
+    
+    <script>
+        // Function to create the draggable items
+        function createItems() {
+            const layout = document.getElementById("layout");
+            layout.innerHTML = "";  // Clear any existing items
+
+            const deskCount = parseInt(document.getElementById("deskCount").value, 10);
+            const meetingCount = parseInt(document.getElementById("meetingCount").value, 10);
+
+            // Calculate layout dimensions
+            const layoutWidth = layout.offsetWidth;
+            const layoutHeight = layout.offsetHeight;
+
+            // Define item dimensions and spacing
+            const deskWidth = 80;
+            const deskHeight = 80;
+            const padding = 20;
+            const itemsPerRow = Math.floor((layoutWidth - padding * 2) / (deskWidth + padding));
+
+            // Create desk items with grid-like positioning
+            for (let i = 0; i < deskCount; i++) {
+                const desk = document.createElement("img");
+                desk.src = "/static/images/desk.png";
+                desk.classList.add("draggable");
+                desk.setAttribute("data-id", "desk-" + i);
+                desk.style.width = deskWidth + "px";
+                desk.style.height = deskHeight + "px";
+                desk.style.position = "absolute";
+
+                // Calculate grid position
+                const row = Math.floor(i / itemsPerRow);
+                const col = i % itemsPerRow;
+
+                // Calculate x and y positions
+                const x = padding + col * (deskWidth + padding);
+                const y = padding + row * (deskHeight + padding);
+
+                // Only place the desk if it fits within the layout
+                if (y + deskHeight <= layoutHeight - padding) {
+                    desk.style.left = x + "px";
+                    desk.style.top = y + "px";
+                    layout.appendChild(desk);
+                }
+            }
+
+            // Similar approach for meeting rooms
+            const meetingWidth = 120;
+            const meetingHeight = 120;
+            const meetingsPerRow = Math.floor((layoutWidth - padding * 2) / (meetingWidth + padding));
+
+            for (let j = 0; j < meetingCount; j++) {
+                const meeting = document.createElement("img");
+                meeting.src = "/static/images/meeting-room.png";
+                meeting.classList.add("draggable");
+                meeting.setAttribute("data-id", "meeting-" + j);
+                meeting.style.width = meetingWidth + "px";
+                meeting.style.height = meetingHeight + "px";
+                meeting.style.position = "absolute";
+
+                // Calculate grid position for meeting rooms
+                const row = Math.floor(j / meetingsPerRow);
+                const col = j % meetingsPerRow;
+
+                // Calculate x and y positions, starting from the bottom of the desks
+                const x = padding + col * (meetingWidth + padding);
+                const y = layoutHeight - (padding + meetingHeight) - (row * (meetingHeight + padding));
+
+                // Only place the meeting room if it fits within the layout
+                if (y >= padding) {
+                    meeting.style.left = x + "px";
+                    meeting.style.top = y + "px";
+                    layout.appendChild(meeting);
+                }
+            }
+
+            // Initialize drag functionality
+            interact('.draggable').draggable({
+                inertia: true,
+                modifiers: [
+                    interact.modifiers.restrictRect({
+                        restriction: 'parent',
+                        endOnly: true
+                    })
+                ],
+                autoScroll: true,
+                listeners: {
+                    move: dragMoveListener
+                }
+            });
+        }
+
+        // Listener to update the element's translation on drag
+        function dragMoveListener(event) {
+            const target = event.target;
+            // Use custom attributes to keep track of the translation
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+            // Apply the translation via CSS transform
+            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+            // Update the position attributes
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+        }
+
+        // When the user clicks the "Save Layout" button,
+        // collect the coordinates and send them to the Flask server.
+        document.getElementById("saveBtn").addEventListener("click", function () {
+            const items = document.querySelectorAll('.draggable');
+            const layoutData = [];
+
+            items.forEach(item => {
+                const id = item.getAttribute("data-id");
+                // Calculate final position: original offset plus translation
+                const rect = item.getBoundingClientRect();
+                const parentRect = document.getElementById("layout").getBoundingClientRect();
+                const x = rect.left - parentRect.left;
+                const y = rect.top - parentRect.top;
+
+                layoutData.push({ id: id, coordX: Math.round(x), coordY: Math.round(y) });
+            });
+
+            // Send the data to the Flask endpoint via POST request
+            fetch('/save_layout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(layoutData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Layout saved successfully!');
+                })
+                .catch(error => {
+                    console.error('Error saving layout:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
