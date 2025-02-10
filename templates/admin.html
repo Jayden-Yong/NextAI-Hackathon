@@ -3,27 +3,16 @@
 {% block title %}AdminHub{% endblock %}
 
 {% block content %}
-<!--<button id="nav-toggle" class="nav-toggle">☰</button>-->
 <div id="sidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" id="closebtn">&times;</a>
-    <a href="#">Home</a>
-    <a href="#">Profile</a>
-    <a href="#">Settings</a>
-    <a href="#">Logout</a>
+    <div class="sidebar-body">
+        <a href="#" class="d-flex align-items-center gap-2">
+            <i class="bi bi-grid fxs"></i>
+            <span class="poppins-semibold fxs">Dashboard</span>
+        </a>
+    </div>
 </div>
 <div id="main-content">
     <!-- Your main content goes here -->
 </div>
 
-<script>
-    document.getElementById("nav-toggle").onclick = function() {
-        document.getElementById("sidebar").style.width = "250px";
-        document.getElementById("main-content").style.marginLeft = "250px";
-    }
-    
-    document.getElementById("closebtn").onclick = function() {
-        document.getElementById("sidebar").style.width = "0";
-        document.getElementById("main-content").style.marginLeft = "0";
-    }
-</script>
 {% endblock %}
