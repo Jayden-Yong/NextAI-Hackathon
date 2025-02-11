@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}AdminHub{% endblock %}
+
+{% block nav_elements %}
+<a href="#" class="nav-item d-flex align-items-center gap-3 nav-active">
+    <i class="bi bi-columns-gap"></i>
+    <span class="poppins-semibold">Dashboard</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-calendar4-event"></i>
+    <span class="poppins-semibold">Desk Booking</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-people"></i>
+    <span class="poppins-semibold">Meeting Rooms</span>
+</a>
+<a href="#" class="nav-item d-flex align-items-center gap-3">
+    <i class="bi bi-graph-up"></i>
+    <span class="poppins-semibold">Analytics</span>
+</a>
+{% endblock %}
+
+
+{% block content %}
+<section>
+    <div class="container mt-4">
+        <span class="poppins-semibold fxl">Welcome {{ session['data']['name'] }}!</span>
+
+        <div class="row row-cols-3">
+            <div>
+                <div class="info-item d-flex gap-3">
+                    <div class="info-icon d-flex align-items-center justify-content-center">
+                        <i class="bi bi-calendar4-event"></i>
+                    </div>
+                    <div class="d-flex align-items-start">
+                        <span class="poppins-medium fxxs">Upcoming Bookings</span>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="info-item">
+                    item
+                </div>
+            </div>
+            <div>
+                <div class="info-item">
+                    item
+                </div>
+            </div>
+        </div>
+    </div>    
+</section>
+{% endblock %}

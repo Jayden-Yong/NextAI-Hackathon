@@ -27,7 +27,11 @@ def admin():
 
 @app.route('/user')
 def user():
-    return render_template('landing.html')
+    if 'email' in session:
+        data = session.get('data')
+        return render_template('user.html')
+    else:
+        return redirect(url_for('home'))
 
 @app.route('/logout')
 def logout():
