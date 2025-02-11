@@ -274,3 +274,24 @@ body{
     color: var(--text-light);
     background-color: var(--theme-3);
 }
+
+/* styling for  */
+/* customize_desk page */
+
+.draggable {
+    width: 100px;
+    height: 100px;
+    background: #f2f2f2;
+    border: 1px solid #333;
+    position: absolute;
+    text-align: center;
+    line-height: 100px;
+    cursor: move;
+    user-select: none;
+}
+
+/* remove image border */
+.draggable[src] {
+    background: transparent;
+    border: none;
+}
