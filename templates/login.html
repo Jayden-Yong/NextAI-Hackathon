@@ -70,7 +70,12 @@
                         <div id="passwordError" class="error-message poppins-semibold"></div>
                     </div>
                     
-                    <button class="login-btn poppins-bold fxs" type="submit">Login</button>
+                    <button class="login-btn poppins-bold fxs mb-4" type="submit">Login</button>
+
+                    <a href="{{ url_for('google_login') }}" class="google-login-btn poppins-bold fxs gap-3">
+                        <img src="{{ url_for('static', filename='images/google.png') }}">
+                        <span>Login with Google</span>
+                    </a>
                 </form>
 
             </div>

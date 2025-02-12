@@ -1,15 +1,33 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, request
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+from pip._vendor import cachecontrol
+from api_key import *
 from dynamic_desk_allocation import main_allocate_task
 from current_user_details import user_data
+import google.auth.transport.requests
+import pathlib
+import requests
 import ai_function
 import pandas as pd
 import database as db
-import pymysql
 import bcrypt
 import os
 
+# Allow http transport for OAuth during development (will be removed in production)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = "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"
+
+GOOGLE_CLIENT_ID = "72353004136-v04m6s1m0g4r801sbofl5uqad6734b3e.apps.googleusercontent.com"
+client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=client_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://127.0.0.1:5000/callback"
+)
 
 # Page routes
 # Route for homepage
@@ -33,13 +51,56 @@ def user():
     else:
         return redirect(url_for('home'))
 
-@app.route('/logout')
-def logout():
-    session.pop('email', None)
-    session.pop('data', None)
-    return redirect(url_for('home'))
 
 # Functional routes
+
+# Google OAuth
+@app.route("/google_login")
+def google_login():
+    authorization_url, state = flow.authorization_url()
+    session["state"] = state
+    return redirect(authorization_url)
+
+@app.route("/callback")
+def callback():
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)  # State does not match!
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID
+    )
+
+    email = id_info.get("email")
+    accounts = db.load_accounts()
+    employees = db.load_employees()
+
+    # Check if the email exists
+    if email in accounts['email'].values:
+        # Check user privilege
+        if accounts.loc[accounts['email'] == email, 'access'].values[0] == 0:
+            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            session['email'] = email
+            session['data'] = data
+            return redirect(url_for('admin'))
+        elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
+            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            session['email'] = email
+            session['data'] = data
+            return redirect(url_for('user'))
+    else:
+            error = "Email not found"
+            return render_template('login.html', error = error)
+
+
 # Login verfication
 @app.route('/verify-login', methods=['POST'])
 def verify_login():
@@ -74,6 +135,12 @@ def verify_login():
         error = "Email not found"
     
     return render_template('login.html', error = error)
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('home'))
 
 
 @app.route('/allocate-desk', methods=['POST'])
