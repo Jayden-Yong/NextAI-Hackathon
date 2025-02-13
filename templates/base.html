@@ -26,9 +26,39 @@
                 <div class="d-flex align-items-center ms-5 gap-3">
                     {% block nav_elements %}{% endblock %}
                 </div>
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown">
+                        <div onclick="toggleMenu()" class="profile-frame">
+                            {% if session.get('picture') %}
+                                <img src="{{ session['picture'] }}" alt="Profile picture">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default.png') }}" alt="Profile picture">
+                            {% endif %}
+                        </div>
+                        <div id="profileMenu" class="dropdown-content">
+                            <span class="d-block poppins-bold fxs">{{ data['name'] }}</span>
+                            <div class="mt-2">
+                                <a href="#">
+                                    <i class="bi bi-gear"></i>
+                                    <span class="poppins-medium">Account Settings</span>
+                                </a>
+                                <a class="logout-btn" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span class="poppins-medium">Log Out</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
         {% block content %}{% endblock %}
+
+        <script>
+            function toggleMenu(){
+                document.getElementById("profileMenu").classList.toggle("show");
+            }
+        </script>
     </body>
 
 </html>

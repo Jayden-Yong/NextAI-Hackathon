@@ -2,7 +2,6 @@ from flask import Flask, render_template ,request,jsonify, url_for, redirect, se
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
-from api_key import *
 from dynamic_desk_allocation import main_allocate_task
 from current_user_details import user_data
 import google.auth.transport.requests
@@ -39,7 +38,7 @@ def home():
 def admin():
     if 'email' in session:
         data = session.get('data')
-        return render_template('admin.html')
+        return render_template('admin.html', data=data)
     else:
         return redirect(url_for('home'))
 
@@ -47,7 +46,7 @@ def admin():
 def user():
     if 'email' in session:
         data = session.get('data')
-        return render_template('user.html')
+        return render_template('user.html', data=data)
     else:
         return redirect(url_for('home'))
 
@@ -89,11 +88,13 @@ def callback():
         if accounts.loc[accounts['email'] == email, 'access'].values[0] == 0:
             data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
             session['email'] = email
+            session['picture'] = id_info.get("picture")
             session['data'] = data
             return redirect(url_for('admin'))
         elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
             data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
             session['email'] = email
+            session['picture'] = id_info.get("picture")
             session['data'] = data
             return redirect(url_for('user'))
     else:
