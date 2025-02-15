@@ -1,63 +1,17 @@
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- css file -->
-    <link rel="stylesheet" href="style.css">
-    <!-- import interact js library  -->
+{% block title %}Customize layout{% endblock %}
+
+{% block jsimports %}
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
-    <title>Customize layout</title>
+{% endblock %}
+
+{% block customCSS %}
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            
             background-image: url('/static/images/layout-setup-background.jpg');
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            opacity: 100%;
-        }
-
-        #layout {
-            width: 800px;
-            height: 600px;
-            border: 1px solid #ccc;
-            position: relative;
-            margin-top: 20px;
-            background-image: url('/static/images/floor-background.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-
-        /* Style for the box */
-        .setup-box {
-            width: 300px;
-            padding: 20px;
-            border-radius: 10px;
-            background: #f8f9fa;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            margin: 20px auto;
-        }
-        #saveBtn{
-            font-family: 'Poppins', sans-serif;
-            width: 300px;
-            padding: 20px;
-            border-radius: 10px;
-            background: #396592;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            margin: 20px auto;
-        }
-        #saveBtn:hover{
-            background: #81a6ce;
+            
         }
 
         /* Style for labels */
@@ -94,32 +48,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: 0.3s;
-        }       
-
-        /* styling for title (customize your workspace layout) */
-        .title-h1 {
-            --color-one: hsl(210 80% 50%);
-            --color-two: hsl(320 100% 75%);
-            --stretch-multiplier: 5;
-            font-size: clamp(2rem, 14vmin, 8rem);
-            font-family: 'Poppins', sans-serif;
-            text-transform: uppercase;
-            display: grid;
-            line-height: 1;
-            text-align: left;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
+        }   
 
         [aria-hidden] {
             display: flex;
@@ -127,72 +56,64 @@
             align-items: center;
             color: white;
         }
-
-        .stretch-o {
-            height: 1.12ch;
-            width: calc(var(--stretch) * 1.16ch);
-            translate: 0 -0.01ch;
-            border: 0.25ch solid white;
-            border-radius: 1ch;
-            transition: width 0.2s;
-            position: relative;
-        }
-
-        .title-h1 {
-            color: white;
-            --stretch: 1;
-        }
-
-        .title-h1:hover {
-            --stretch: var(--stretch-multiplier);
-        }
-
-        .stretch-o:after,
-        .stretch-o:before {
-            content: "";
-            border: 0.25ch solid var(--color);
-            position: absolute;
-            inset: -0.25ch;
-            border-radius: 1ch;
-            opacity: calc(-1 + var(--stretch));
-            transition: opacity 0.2s;
-        }
-
-        .stretch-o:before {
-            --color: var(--color-one);
-        }
-
-        .stretch-o:after {
-            --color: var(--color-two);
-            mask: radial-gradient(circle at top left, white, transparent);
-        }
     </style>
-</head>
+{% endblock %} 
 
-<body>
-    <h1 class="title-h1">
-        <span style="font-size: 40;">Customize</span>
-        <span class="sr-only" style="font-size: 50;">Your</span>
-        <span aria-hidden="true">
-            <span>Y</span>
-            <span class="stretch-o"></span>
-            <span>ur</span>
-        </span>
-        <span style="font-size: 50;">Workspace Layout</span>
-    </h1>
+{% block nav_elements %}
+    <a href="#" class="nav-item d-flex align-items-center gap-3">
+        <i class="bi bi-columns-gap"></i>
+        <span class="poppins-semibold">Dashboard</span>
+    </a>
+    <a href="{{ url_for('desk_manager') }}" class="nav-item d-flex align-items-center gap-3 nav-active">
+        <i class="bi bi-calendar4-event"></i>
+        <span class="poppins-semibold">Desk Manager</span>
+    </a>
+    <a href="#" class="nav-item d-flex align-items-center gap-3">
+        <i class="bi bi-people"></i>
+        <span class="poppins-semibold">Meeting Rooms</span>
+    </a>
+    <a href="#" class="nav-item d-flex align-items-center gap-3">
+        <i class="bi bi-graph-up"></i>
+        <span class="poppins-semibold">Analytics</span>
+    </a>
+    {% endblock %}
 
-    <div class="setup-box">
-        <label for="deskCount">Number of Desks:</label>
-        <input type="number" id="deskCount" value="2" min="0" max="21">
-
-        <label for="meetingCount">Number of Meeting Rooms:</label>
-        <input type="number" id="meetingCount" value="1" min="0" max="10">
-        <button onclick="createItems()">Create Items</button>
-    </div>
-        <div id="layout" style="border-radius: 5%;"></div>
-        <button  id="saveBtn">Save Button</button>
+{% block content %}
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center">
+            <h1 class="title-h1">
+                <span style="font-size: 40;">Customize</span>
+                <span class="sr-only" style="font-size: 50;">Your</span>
+                <span aria-hidden="true">
+                    <span>Y</span>
+                    <span class="stretch-o"></span>
+                    <span>ur</span>
+                </span>
+                <span style="font-size: 50;">Workspace Layout</span>
+            </h1>
+        </div>
         
+        <div class="d-flex justify-content-center">
+            <div class="setup-box">
+                <label for="deskCount">Number of Desks:</label>
+                <input type="number" id="deskCount" value="2" min="0" max="21">
     
+                <label for="meetingCount">Number of Meeting Rooms:</label>
+                <input type="number" id="meetingCount" value="1" min="0" max="10">
+                <button class="mt-3" onclick="createItems()">Create Items</button>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <div id="layout" style="border-radius: 5%;"></div>
+        </div>
+
+        <div class="d-flex justify-content-center">
+            <button  id="saveBtn">Save Button</button>
+        </div>
+        
+    </div>   
+
     <script>
         // Function to create the draggable items
         function createItems() {
@@ -331,6 +252,4 @@
                 });
         });
     </script>
-</body>
-
-</html>
+{% endblock %}

@@ -350,6 +350,8 @@ body{
     background-color: var(--theme-3);
 }
 
+
+/* Page Manager */
 /* styling for  */
 /* customize_desk page */
 
@@ -369,4 +371,108 @@ body{
 .draggable[src] {
     background: transparent;
     border: none;
+}
+
+#layout {
+    width: 800px;
+    height: 600px;
+    border: 1px solid #ccc;
+    position: relative;
+    margin-top: 20px;
+    background-image: url('images/floor-background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Style for the box */
+.setup-box {
+    width: 300px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 20px auto;
+}
+#saveBtn{
+    font-family: 'Poppins', sans-serif;
+    width: 300px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #396592;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    margin: 20px auto;
+}
+#saveBtn:hover{
+    background: #81a6ce;
+}
+
+    
+
+/* styling for title (customize your workspace layout) */
+.title-h1 {
+    --color-one: hsl(210 80% 50%);
+    --color-two: hsl(320 100% 75%);
+    --stretch-multiplier: 5;
+    font-size: clamp(2rem, 14vmin, 8rem);
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    display: grid;
+    line-height: 1;
+    text-align: left;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+
+
+.stretch-o {
+    height: 1.12ch;
+    width: calc(var(--stretch) * 1.16ch);
+    translate: 0 -0.01ch;
+    border: 0.25ch solid white;
+    border-radius: 1ch;
+    transition: width 0.2s;
+    position: relative;
+}
+
+.title-h1 {
+    color: white;
+    --stretch: 1;
+}
+
+.title-h1:hover {
+    --stretch: var(--stretch-multiplier);
+}
+
+.stretch-o:after,
+.stretch-o:before {
+    content: "";
+    border: 0.25ch solid var(--color);
+    position: absolute;
+    inset: -0.25ch;
+    border-radius: 1ch;
+    opacity: calc(-1 + var(--stretch));
+    transition: opacity 0.2s;
+}
+
+.stretch-o:before {
+    --color: var(--color-one);
+}
+
+.stretch-o:after {
+    --color: var(--color-two);
+    mask: radial-gradient(circle at top left, white, transparent);
 }

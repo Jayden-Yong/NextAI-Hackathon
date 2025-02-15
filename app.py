@@ -1,4 +1,5 @@
 from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, request
+from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
@@ -28,6 +29,15 @@ flow = Flow.from_client_secrets_file(
     redirect_uri="http://127.0.0.1:5000/callback"
 )
 
+# Decorator for page protection (@login_required)
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args,**kwargs):
+        if 'email' not in session:
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Page routes
 # Route for homepage
 @app.route('/')
@@ -35,20 +45,21 @@ def home():
     return render_template('login.html')
 
 @app.route('/admin')
+@login_required
 def admin():
-    if 'email' in session:
-        data = session.get('data')
-        return render_template('admin.html', data=data)
-    else:
-        return redirect(url_for('home'))
+    data = session.get('data')
+    return render_template('admin.html', data=data)
 
 @app.route('/user')
+@login_required
 def user():
-    if 'email' in session:
-        data = session.get('data')
-        return render_template('user.html', data=data)
-    else:
-        return redirect(url_for('home'))
+    data = session.get('data')
+    return render_template('user.html', data=data)
+
+@app.route('/desk_manager')
+@login_required
+def desk_manager():
+    return render_template('customize_desk.html', data=session.get('data'))
 
 
 # Functional routes
