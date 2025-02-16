@@ -32,9 +32,49 @@
                     <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}">
                     <span class="poppins-bold fxl">Hybrid Hub</span>
                 </div>
+
                 <div class="d-flex align-items-center ms-5 gap-3">
-                    {% block nav_elements %}{% endblock %}
+
+                    <!-- Navigation bar for Admin -->
+                    {% if session['access'] == 0 %}
+                    <a href="{{ url_for('admin') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('admin') %}nav-active{% endif %}">
+                        <i class="bi bi-columns-gap"></i>
+                        <span class="poppins-semibold">Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('desk_manager') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('desk_manager') %}nav-active{% endif %}">
+                        <i class="bi bi-arrows-move"></i>
+                        <span class="poppins-semibold">Desk Manager</span>
+                    </a>
+                    <a href="{{ url_for('employee_manager') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('employee_manager') %}nav-active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span class="poppins-semibold">Employees</span>
+                    </a>
+                    <a href="#" class="nav-item d-flex align-items-center gap-3">
+                        <i class="bi bi-graph-up"></i>
+                        <span class="poppins-semibold">Analytics</span>
+                    </a>
+
+                    <!-- Navigation bar for Employees -->
+                    {% else %}
+                    <a href="#" class="nav-item d-flex align-items-center gap-3 nav-active">
+                        <i class="bi bi-columns-gap"></i>
+                        <span class="poppins-semibold">Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item d-flex align-items-center gap-3">
+                        <i class="bi bi-calendar4-event"></i>
+                        <span class="poppins-semibold">Desk Booking</span>
+                    </a>
+                    <a href="#" class="nav-item d-flex align-items-center gap-3">
+                        <i class="bi bi-people"></i>
+                        <span class="poppins-semibold">Meeting Rooms</span>
+                    </a>
+                    <a href="#" class="nav-item d-flex align-items-center gap-3">
+                        <i class="bi bi-graph-up"></i>
+                        <span class="poppins-semibold">Analytics</span>
+                    </a>
+                    {% endif %}
                 </div>
+
                 <div class="d-flex align-items-center ms-auto">
                     <div class="dropdown">
                         <div onclick="toggleMenu()" class="profile-frame">
@@ -45,7 +85,7 @@
                             {% endif %}
                         </div>
                         <div id="profileMenu" class="dropdown-content">
-                            <span class="d-block poppins-bold fxs">{{ data['name'] }}</span>
+                            <span class="d-block poppins-bold fxs">{{ session['data']['name'] }}</span>
                             <div class="mt-2">
                                 <a href="#">
                                     <i class="bi bi-gear"></i>
