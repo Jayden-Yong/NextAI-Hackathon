@@ -39,3 +39,8 @@ def load_accounts():
     con = connect_db()
     accounts = pd.read_sql("SELECT * FROM accounts",con)
     return accounts
+
+def load_employee_data():
+    con = connect_db()
+    employee_datas = pd.read_sql("SELECT employee.employeeID,accounts.email,employee.name,employee.prefDays,department.departmentName FROM employee JOIN accounts ON employee.employeeID = accounts.employeeID JOIN department ON employee.departmentID = department.departmentID",con)
+    return employee_datas
