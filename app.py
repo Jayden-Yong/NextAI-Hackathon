@@ -172,6 +172,40 @@ def logout():
 def allocate_desk():
     main_allocate_task()
 
+@app.route('/save_layout', methods=['POST'])
+def save_layout():
+    # Get JSON data from the request
+    layout_data = request.get_json()
+    if not layout_data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    engine = connect_db()
+    # Use a transactional context manager
+    with engine.begin() as conn:
+        for item in layout_data:
+            
+            # e.g., "desk-0" or "meeting-1"
+            item_id = item.get('id')  
+            coordX = item.get('coordX')
+            coordY = item.get('coordY')
+            
+            # Check to make sure it is desk or meeting
+            if item_id.startswith('desk') or item_id.startswith('meeting'):
+                
+                # Extract the numeric part after the dash
+                desk_id = item_id
+                query = text("""
+                    INSERT INTO desk (deskID, coordX, coordY) 
+                    VALUES (:id, :x, :y) 
+                    ON DUPLICATE KEY UPDATE coordX = VALUES(coordX), coordY = VALUES(coordY)
+                """)
+                conn.execute(query, {"id": desk_id, "x": coordX, "y": coordY})
+
+            else:
+                continue
+
+    return jsonify({'message': 'Layout saved successfully!'}), 200
+
 @app.route('/recommendation-f2f-work',methods=['POST'])
 def recommendation_f2f_work():
     return (ai_function.recommendation_f2f)
