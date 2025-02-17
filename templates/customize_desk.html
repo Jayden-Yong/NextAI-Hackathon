@@ -74,14 +74,43 @@
             </h1>
         </div>
         
-        <div class="d-flex justify-content-center">
-            <div class="setup-box">
-                <label for="deskCount">Number of Desks:</label>
-                <input type="number" id="deskCount" value="2" min="0" max="21">
-    
-                <label for="meetingCount">Number of Meeting Rooms:</label>
-                <input type="number" id="meetingCount" value="1" min="0" max="10">
-                <button class="mt-3" onclick="createItems()">Create Items</button>
+        <div class="d-flex align-items-center justify-content-center gap-3 mt-5">
+            <div class="desk-setup d-flex align-items-center gap-3">
+
+                <div class="setup-icon d-flex justify-content-center align-items-center">
+                    <span class="material-symbols-outlined fxl">table_restaurant</span>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <span class="poppins-semibold">Number of Desks</span>
+                    <span id="desk_count" class="poppins-bold flg">{{ desks }}</span>
+                </div>
+
+                <div class="d-flex align-items-center ms-auto p-2">
+                    <button class="alter-btn d-flex align-items-center justify-content-center" onclick="createDesk()">
+                        <span class="material-symbols-outlined flg">add_2</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="desk-setup d-flex align-items-center gap-3">
+
+                <div class="setup-icon d-flex justify-content-center align-items-center">
+                    <span class="material-symbols-outlined fxl">meeting_room</span>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <span class="poppins-semibold">Number of Meeting Rooms</span>
+                    <span id="meeting_count" class="poppins-bold flg">{{ meetings }}</span>
+                </div>
+
+                <div class="d-flex align-items-center ms-auto p-2">
+                    <button class="alter-btn d-flex align-items-center justify-content-center" onclick="createMeeting()">
+                        <span class="material-symbols-outlined flg">add_2</span>
+                    </button>
+                </div>
+
             </div>
         </div>
 
@@ -89,86 +118,97 @@
             <div id="layout" style="border-radius: 5%;"></div>
         </div>
 
-        <div class="d-flex justify-content-center">
-            <button  id="saveBtn">Save Button</button>
+        <div class="d-flex justify-content-center align-items-center gap-2 my-4">
+            <button class="delete-desk-btn d-flex justify-content-center align-items-center gap-3" onclick="deleteSelectedDesk()">
+                <span class="material-symbols-outlined flg">delete</span>
+                <span class="poppins-semibold fxs">Delete selected</span>
+            </button>
+            <button class="save-btn d-flex justify-content-center align-items-center gap-3" onclick="saveLayout()">
+                <span class="material-symbols-outlined flg">cloud_upload</span>
+                <span class="poppins-semibold fxs">Save layout</span>
+            </button>
         </div>
         
     </div>   
 
     <script>
-        // Function to create the draggable items
-        function createItems() {
+        // Get existing desks from json
+        desks = JSON.parse('{{ desks_json | safe }}');
+        console.log(desks)
+        // Creates layout object
+        layout = document.getElementById("layout");
+        // Calculate layout dimensions
+        const layoutWidth = layout.offsetWidth;
+        const layoutHeight = layout.offsetHeight;
+        // Define item dimensions and spacing
+        const deskWidth = 80;
+        const deskHeight = 80;
+        const meetingWidth = 120;
+        const meetingHeight = 120;
+        const padding = 20;
+        let selectedDesk = null;
+
+        // Listener to update the element's translation on drag
+        function dragMoveListener(event) {
+            const target = event.target;
+            // Use custom attributes to keep track of the translation
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+            // Apply the translation via CSS transform
+            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+
+            // Update the position attributes
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+
+            // Update the coordinates in the desks array
+            const deskID = target.getAttribute('data-id');
+            desks.forEach(desk => {
+                if (desk.deskID == deskID){
+                    desk.coordX = x;
+                    desk.coordY = y;
+                }
+            });
+        }
+
+        function idGenerator(){
+            let i, isCreated = true;
+            while(isCreated){
+                i = Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+                let idExists = false;
+                desks.forEach(desk => {
+                    id = parseInt(desk.deskID.substring(1), 10);
+                    if (i == id) {
+                        idExists = true;
+                    }
+                });
+                if (!idExists) {
+                    isCreated = false;
+                }
+            }
+            return i;
+        }
+
+        // Function to recreate the layout from saved data
+        function renderLayout(savedLayout) {
             const layout = document.getElementById("layout");
             layout.innerHTML = "";  // Clear any existing items
 
-            const deskCount = parseInt(document.getElementById("deskCount").value, 10);
-            const meetingCount = parseInt(document.getElementById("meetingCount").value, 10);
+            savedLayout.forEach(item => {
+                const element = document.createElement("img");
+                element.src = item.deskID.startsWith("D") ? "/static/images/desk.png" : "/static/images/meeting-room.png";
+                element.classList.add("draggable");
+                element.setAttribute("data-id", item.deskID);
+                element.style.width = item.deskID.startsWith("D") ? "80px" : "120px";
+                element.style.height = item.deskID.startsWith("D") ? "80px" : "120px";
+                element.style.position = "absolute";
+                element.style.left = item.coordX + "px";
+                element.style.top = item.coordY + "px";
+                layout.appendChild(element);
 
-            // Calculate layout dimensions
-            const layoutWidth = layout.offsetWidth;
-            const layoutHeight = layout.offsetHeight;
-
-            // Define item dimensions and spacing
-            const deskWidth = 80;
-            const deskHeight = 80;
-            const padding = 20;
-            const itemsPerRow = Math.floor((layoutWidth - padding * 2) / (deskWidth + padding));
-
-            // Create desk items with grid-like positioning
-            for (let i = 0; i < deskCount; i++) {
-                const desk = document.createElement("img");
-                desk.src = "/static/images/desk.png";
-                desk.classList.add("draggable");
-                desk.setAttribute("data-id", "desk-" + i);
-                desk.style.width = deskWidth + "px";
-                desk.style.height = deskHeight + "px";
-                desk.style.position = "absolute";
-
-                // Calculate grid position
-                const row = Math.floor(i / itemsPerRow);
-                const col = i % itemsPerRow;
-
-                // Calculate x and y positions
-                const x = padding + col * (deskWidth + padding);
-                const y = padding + row * (deskHeight + padding);
-
-                // Only place the desk if it fits within the layout
-                if (y + deskHeight <= layoutHeight - padding) {
-                    desk.style.left = x + "px";
-                    desk.style.top = y + "px";
-                    layout.appendChild(desk);
-                }
-            }
-
-            // Similar approach for meeting rooms
-            const meetingWidth = 120;
-            const meetingHeight = 120;
-            const meetingsPerRow = Math.floor((layoutWidth - padding * 2) / (meetingWidth + padding));
-
-            for (let j = 0; j < meetingCount; j++) {
-                const meeting = document.createElement("img");
-                meeting.src = "/static/images/meeting-room.png";
-                meeting.classList.add("draggable");
-                meeting.setAttribute("data-id", "meeting-" + j);
-                meeting.style.width = meetingWidth + "px";
-                meeting.style.height = meetingHeight + "px";
-                meeting.style.position = "absolute";
-
-                // Calculate grid position for meeting rooms
-                const row = Math.floor(j / meetingsPerRow);
-                const col = j % meetingsPerRow;
-
-                // Calculate x and y positions, starting from the bottom of the desks
-                const x = padding + col * (meetingWidth + padding);
-                const y = layoutHeight - (padding + meetingHeight) - (row * (meetingHeight + padding));
-
-                // Only place the meeting room if it fits within the layout
-                if (y >= padding) {
-                    meeting.style.left = x + "px";
-                    meeting.style.top = y + "px";
-                    layout.appendChild(meeting);
-                }
-            }
+                element.addEventListener('click', () => selectDesk(element));
+            });
 
             // Initialize drag functionality
             interact('.draggable').draggable({
@@ -186,24 +226,171 @@
             });
         }
 
-        // Listener to update the element's translation on drag
-        function dragMoveListener(event) {
-            const target = event.target;
-            // Use custom attributes to keep track of the translation
-            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+        // Function to add a desk
+        function createDesk(){
+            const desk = document.createElement("img");
+            const i = idGenerator();
+            desk.src = "/static/images/desk.png";
+            desk.classList.add("draggable");
+            desk.setAttribute("data-id", "D" + i);
+            desk.style.width = deskWidth + "px";
+            desk.style.height = deskHeight + "px";
+            desk.style.position = "absolute";
 
-            // Apply the translation via CSS transform
-            target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+            let x, y, isOccupied;
+            do{
+                isOccupied = false;
+                x = Math.floor(Math.random() * (layoutWidth - deskWidth - padding * 2)) + padding;
+                y = Math.floor(Math.random() * (layoutHeight - deskHeight - padding * 2)) + padding;
 
-            // Update the position attributes
-            target.setAttribute('data-x', x);
-            target.setAttribute('data-y', y);
+                // Check if the position is occupied
+                for (const desk of desks) {
+                    if (Math.abs(desk.coordX - x) < deskWidth && Math.abs(desk.coordY - y) < deskHeight) {
+                        isOccupied = true;
+                        break;
+                    }
+                }
+
+            } while (isOccupied);
+
+            // Only place the desk if it fits within the layout and an empty spot was found
+            if (!isOccupied && y + deskHeight <= layoutHeight - padding) {
+                desk.style.left = x + "px";
+                desk.style.top = y + "px";
+                
+                // Add the new desk to the array of desks
+                desks.push({
+                    deskID: "D" + i,
+                    coordX: x,
+                    coordY: y
+                });
+
+                const counter = document.getElementById("desk_count");
+                const count = parseInt(counter.textContent, 10) + 1;
+                counter.textContent = count;
+
+                // Append the new desk to the layout without re-rendering the entire layout
+                layout.appendChild(desk);
+
+                // Initialize drag functionality for the new desk
+                interact(desk).draggable({
+                    inertia: true,
+                    modifiers: [
+                        interact.modifiers.restrictRect({
+                            restriction: 'parent',
+                            endOnly: true
+                        })
+                    ],
+                    autoScroll: true,
+                    listeners: {
+                        move: dragMoveListener
+                    }
+                });
+
+                desk.addEventListener('click', () => selectDesk(desk));
+
+            } else {
+                console.log("Failed to find an empty spot for the new desk.");
+            }
         }
 
-        // When the user clicks the "Save Layout" button,
-        // collect the coordinates and send them to the Flask server.
-        document.getElementById("saveBtn").addEventListener("click", function () {
+        function createMeeting(){
+            const meeting = document.createElement("img");
+            const i = idGenerator();
+            meeting.src = "/static/images/meeting-room.png";
+            meeting.classList.add("draggable");
+            meeting.setAttribute("data-id", "M" + i);
+            meeting.style.width = meetingWidth + "px";
+            meeting.style.height = meetingHeight + "px";
+            meeting.style.position = "absolute";
+
+            let x, y, isOccupied;
+            do{
+                isOccupied = false;
+                x = Math.floor(Math.random() * (layoutWidth - meetingWidth - padding * 2)) + padding;
+                y = Math.floor(Math.random() * (layoutHeight - meetingHeight - padding * 2)) + padding;
+
+                // Check if the position is occupied
+                for (const desk of desks) {
+                    if (Math.abs(desk.coordX - x) < meetingWidth && Math.abs(desk.coordY - y) < meetingHeight) {
+                        isOccupied = true;
+                        break;
+                    }
+                }
+
+            } while (isOccupied);
+
+            // Only place the desk if it fits within the layout and an empty spot was found
+            if (!isOccupied && y + meetingHeight <= layoutHeight - padding) {
+                meeting.style.left = x + "px";
+                meeting.style.top = y + "px";
+                
+                // Add the new desk to the array of desks
+                desks.push({
+                    deskID: "M" + i,
+                    coordX: x,
+                    coordY: y
+                });
+
+                const counter = document.getElementById("meeting_count");
+                const count = parseInt(counter.textContent, 10) + 1;
+                counter.textContent = count;
+
+                // Append the new desk to the layout without re-rendering the entire layout
+                layout.appendChild(meeting);
+
+                // Initialize drag functionality for the new meeting
+                interact(meeting).draggable({
+                    inertia: true,
+                    modifiers: [
+                        interact.modifiers.restrictRect({
+                            restriction: 'parent',
+                            endOnly: true
+                        })
+                    ],
+                    autoScroll: true,
+                    listeners: {
+                        move: dragMoveListener
+                    }
+                });
+
+                meeting.addEventListener('click', () => selectDesk(meeting));
+
+            } else {
+                console.log("Failed to find an empty spot for the new meeting room.");
+            }
+        }
+
+        function selectDesk(desk){
+            // Remove highlight from previously selected desk
+            if (selectedDesk) {
+                selectedDesk.classList.remove('selected');
+            }
+            // Highlight the selected desk
+            desk.classList.add('selected');
+            selectedDesk = desk;
+        }
+
+        // Function to delete the selected desk
+        function deleteSelectedDesk() {
+            if (selectedDesk) {
+                const deskID = selectedDesk.getAttribute('data-id');
+                // Remove the desk from the desks array
+                desks = desks.filter(desk => desk.deskID !== deskID);
+                console.log(desks);
+                // Remove the desk from the layout
+                selectedDesk.remove();
+                selectedDesk = null;
+
+                // Update the desk count
+                target_count = deskID.startsWith('D') ? "desk_count" : "meeting_count";
+                const counter = document.getElementById(target_count);
+                const count = parseInt(counter.textContent, 10) - 1;
+                counter.textContent = count;
+            }
+        }
+
+        function saveLayout(){
             const items = document.querySelectorAll('.draggable');
             const layoutData = [];
 
@@ -218,6 +405,8 @@
                 layoutData.push({ id: id, coordX: Math.round(x), coordY: Math.round(y) });
             });
 
+            console.log(layoutData)
+
             // Send the data to the Flask endpoint via POST request
             fetch('/save_layout', {
                 method: 'POST',
@@ -231,6 +420,23 @@
                 .catch(error => {
                     console.error('Error saving layout:', error);
                 });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (selectedDesk && !event.target.classList.contains('draggable')) {
+                selectedDesk.classList.remove('selected');
+                selectedDesk = null;
+            }
         });
+
+        // Main Control Module
+
+        if (desks.length === 0){
+
+        } else {
+            document.addEventListener("DOMContentLoaded", function() {
+                renderLayout(desks);
+            });
+        }
     </script>
 {% endblock %}
