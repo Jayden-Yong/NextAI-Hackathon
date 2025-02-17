@@ -1,12 +1,12 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, request
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 from dynamic_desk_allocation import main_allocate_task
 from current_user_details import user_data
-from database import connect_db
 from sqlalchemy import text
+from database import connect_db
 import google.auth.transport.requests
 import pathlib
 import requests
@@ -49,19 +49,30 @@ def home():
 @app.route('/admin')
 @login_required
 def admin():
-    data = session.get('data')
-    return render_template('admin.html', data=data)
+    return render_template('admin.html', current_url=request.path)
 
 @app.route('/user')
 @login_required
 def user():
-    data = session.get('data')
-    return render_template('user.html', data=data)
+    return render_template('user.html')
 
 @app.route('/desk_manager')
 @login_required
 def desk_manager():
-    return render_template('customize_desk.html', data=session.get('data'))
+    return render_template('customize_desk.html', current_url=request.path)
+
+@app.route('/employee_manager')
+@login_required
+def employee_manager():
+    employeeDB = db.load_employee_data().to_dict('records')
+    return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path)
+
+@app.route('/edit_employee/<string:employee_id>')
+@login_required
+def edit_employee(employee_id):
+    employeesDB = db.load_employee_data()
+    details = employeesDB.loc[employeesDB['employeeID'] == employee_id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
+    return render_template('edit_employee.html', details=details)
 
 
 # Functional routes
@@ -98,14 +109,17 @@ def callback():
     # Check if the email exists
     if email in accounts['email'].values:
         # Check user privilege
-        if accounts.loc[accounts['email'] == email, 'access'].values[0] == 0:
+        access = int(accounts.loc[accounts['email'] == email, 'access'].values[0])
+        if access == 0:
             data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            session['access'] = access
             session['email'] = email
             session['picture'] = id_info.get("picture")
             session['data'] = data
             return redirect(url_for('admin'))
-        elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
+        elif access == 1:
             data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            session['access'] = access
             session['email'] = email
             session['picture'] = id_info.get("picture")
             session['data'] = data
@@ -195,13 +209,13 @@ def save_layout():
 
     return jsonify({'message': 'Layout saved successfully!'}), 200
 
-@app.route('/recommendation-f2f-work',methods=['POST'])
+@app.route('/recommendation-f2f-work',methods=['GET'])
 def recommendation_f2f_work():
-    return (ai_function.recommendation_f2f)
+    return jsonify(ai_function.recommendation_f2f)
 
-@app.route('/recommendation-meeting',methods=['POST'])
+@app.route('/recommendation-meeting',methods=['GET'])
 def recommendation_meeting():
-    return (ai_function.recommendation_meeting)
+    return jsonify(ai_function.recommendation_meeting)
 
 
 if __name__ == '__main__':

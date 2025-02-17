@@ -1,16 +1,12 @@
 from openai import OpenAI
 from config import api_key
 from database import load_allData
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import json
 
-# client = OpenAI(api_key = api_key ,base_url = "https://api.deepseek.com")
+client = OpenAI(api_key = api_key ,base_url = "https://api.deepseek.com")
 
 
 def generate(prompt):
-    model_id = "qwen/Qwen-7B"
-    tokenizer =  AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
     
     employees,desks,booking,department = load_allData()
     # expect input like this
@@ -35,30 +31,26 @@ def generate(prompt):
     # concatenate the database and the prompt
     user_prompt = prompt+" "+schema
 
-    final_prompt = system_prompt+user_prompt
-    inputs = tokenizer(final_prompt,return_tensors="pt")
-    outputs = model.generate(inputs.input_ids, max_length = 100)
-    return (tokenizer.decode(outputs[0], skip_special_tokens=True))
 
-    # messages = [{"role": "system", "content": system_prompt},
-    #             {"role": "user", "content": user_prompt}]
+    messages = [{"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}]
 
-    # try:
-    #     # Call the API
-    #     response = client.chat.completions.create(
-    #         model="deepseek-reasoner",  
-    #         messages=messages,
-    #         response_format={"type": "json_object"} ,
-    #         max_tokens=50
-    #     )
+    try:
+        # Call the API
+        response = client.chat.completions.create(
+            model="deepseek-reasoner",  
+            messages=messages,
+            response_format={"type": "json_object"} ,
+            max_tokens=50
+        )
 
-    #     response_json = json.loads(response.choices[0].message.content)
-    #     return response_json
+        response_json = json.loads(response.choices[0].message.content)
+        return response_json
 
-    # except Exception as e:
-    #     # Handle errors
-    #     print(f"An error occurred: {e}")
-    #     return {"error": str(e)}
+    except Exception as e:
+        # Handle errors
+        print(f"An error occurred: {e}")
+        return {"error": str(e)}
 
     # returns 
     # {
