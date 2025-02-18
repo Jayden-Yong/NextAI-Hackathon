@@ -212,14 +212,14 @@ header{
 
     background: linear-gradient(
         135deg,
-        rgba(207,218,240,0.3) 0%,
-        rgba(207,218,240,0.6) 100%
+        rgba(207,218,240,0.7) 40%,
+        rgba(207,218,240,0.8) 55%
     );
     backdrop-filter: blur(8px);
 
-    width: 20vw;
+    width: 18vw;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    z-index: 999;
 }
 
 .dropdown-content a, .logout-btn{
@@ -274,6 +274,32 @@ header{
 
 body{
     background-color: var(--bg-color);
+}
+
+.banner{
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 2rem 0;
+    background-image: url(images/layout-setup-background.jpg);
+    background-attachment: fixed;
+}
+
+.banner::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.banner-content{
+    position: relative;
+    z-index: 2;
+    color: var(--text-light);
 }
 
 /** LOGIN PAGE **/
@@ -418,9 +444,15 @@ body{
 }
 
 #layout {
-    width: 800px;
+    width: 80vw;
     height: 600px;
     border: 1px solid #ccc;
+    border-radius: 3rem;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1), 
+        0 8px 10px rgba(0, 0, 0, 0.1), 
+        0 12px 15px rgba(0, 0, 0, 0.1), 
+        0 16px 20px rgba(0, 0, 0, 0.1); 
     position: relative;
     margin-top: 20px;
     background-image: url('images/floor-background.jpg');
@@ -435,6 +467,25 @@ body{
     background-color: var(--theme-2);
     padding: 0.6rem;
     border-radius: 0.8rem;
+    border: solid 0.1rem var(--theme-4);
+    transition: box-shadow 0.3s ease;
+}
+
+.desk-setup:hover{
+    box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.025),   /* Bottom shadow */
+    0 4px 6px rgba(0, 0, 0, 0.025),   /* Bottom shadow */
+    0 6px 8px rgba(0, 0, 0, 0.025),   /* Bottom shadow */
+    0 8px 10px rgba(0, 0, 0, 0.025),  /* Bottom shadow */
+    0 12px 24px rgba(0, 0, 0, 0.025), /* Deeper bottom shadow */
+    -2px 0 4px rgba(0, 0, 0, 0.025),  /* Left shadow */
+    2px 0 4px rgba(0, 0, 0, 0.025),   /* Right shadow */
+    -4px 0 6px rgba(0, 0, 0, 0.025),  /* Left shadow */
+    4px 0 6px rgba(0, 0, 0, 0.025),   /* Right shadow */
+    -6px 0 8px rgba(0, 0, 0, 0.025),  /* Left shadow */
+    6px 0 8px rgba(0, 0, 0, 0.025),   /* Right shadow */
+    -8px 0 10px rgba(0, 0, 0, 0.025), /* Left shadow */
+    8px 0 10px rgba(0, 0, 0, 0.025);  /* Right shadow */
 }
 
 .setup-icon{

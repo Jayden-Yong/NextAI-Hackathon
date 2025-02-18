@@ -8,12 +8,6 @@
 
 {% block customCSS %}
     <style>
-        body {
-            
-            background-image: url('/static/images/layout-setup-background.jpg');
-            
-        }
-
         /* Style for labels */
         label {
             font-family: 'Poppins', sans-serif;
@@ -60,20 +54,22 @@
 {% endblock %} 
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-center">
-            <h1 class="title-h1">
-                <span style="font-size: 40;">Customize</span>
-                <span class="sr-only" style="font-size: 50;">Your</span>
+    <div class="banner">
+        <div class="container">
+            <h1 class="banner-content title-h1">
+                <span style="font-size: 2rem;">Customize</span>
+                <span class="sr-only" style="font-size: 3rem;">Your</span>
                 <span aria-hidden="true">
                     <span>Y</span>
                     <span class="stretch-o"></span>
                     <span>ur</span>
                 </span>
-                <span style="font-size: 50;">Workspace Layout</span>
+                <span style="font-size: 3rem;">Workspace Layout</span>
             </h1>
         </div>
-        
+    </div>
+
+    <div class="container">
         <div class="d-flex align-items-center justify-content-center gap-3 mt-5">
             <div class="desk-setup d-flex align-items-center gap-3">
 
@@ -114,8 +110,8 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-center">
-            <div id="layout" style="border-radius: 5%;"></div>
+        <div class="d-flex justify-content-center mt-3">
+            <div id="layout"></div>
         </div>
 
         <div class="d-flex justify-content-center align-items-center gap-2 my-4">
