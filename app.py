@@ -1,4 +1,5 @@
 from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort
+from datetime import datetime
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
@@ -115,20 +116,19 @@ def callback():
     if email in accounts['email'].values:
         # Check user privilege
         access = int(accounts.loc[accounts['email'] == email, 'access'].values[0])
-        if access == 0:
-            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
-            session['access'] = access
-            session['email'] = email
-            session['picture'] = id_info.get("picture")
-            session['data'] = data
-            return redirect(url_for('admin'))
-        elif access == 1:
-            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
-            session['access'] = access
-            session['email'] = email
-            session['picture'] = id_info.get("picture")
-            session['data'] = data
-            return redirect(url_for('user'))
+        data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+        now = datetime.now()
+        session.update({
+            'access': access,
+            'email': email,
+            'picture': id_info.get("picture"),
+            'date': now.strftime("%d %B %Y"),
+            'day': now.strftime("%A"),
+            'login-time': now.strftime("%H:%M:%S"),
+            'data': data
+        })
+
+        return redirect(url_for('admin' if access == 0 else 'user'))
     else:
             error = "Email not found"
             return render_template('login.html', error = error)
