@@ -2,4 +2,19 @@
 
 {% block title %}AdminHub{% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+<section class="container">
+    <div class="welcome-banner">
+        <div class="welcome-banner-content d-flex align-items-center">
+            <div>
+                <span class="poppins-semibold fxs theme-1">{{ session['day'] }}, {{ session['date'] }}</span>
+                <span class="poppins-semibold d-block fxxl">Welcome {{ session['data']['name'] }}!</span>
+            </div>
+            
+            <div class="in-office-counter ms-auto">
+                <span class="poppins-semibold fsm">IN-OFFICE TODAY</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
