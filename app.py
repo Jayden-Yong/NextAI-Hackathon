@@ -1,20 +1,25 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 from dynamic_desk_allocation import main_allocate_task
 from current_user_details import user_data
-from sqlalchemy import text
 from database import connect_db
+from sqlalchemy import text
+import analytics_graphs
 import google.auth.transport.requests
 import pathlib
 import requests
+import json
 import ai_function
 import pandas as pd
 import database as db
 import bcrypt
 import os
+
+from database import connect_db
+from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -59,13 +64,22 @@ def user():
 @app.route('/desk_manager')
 @login_required
 def desk_manager():
-    return render_template('customize_desk.html', current_url=request.path)
+    desks = db.load_desks().to_dict('records')
+    desk_count = sum(1 for desk in desks if desk['deskID'].startswith('D'))
+    meeting_count = sum(1 for meeting in desks if meeting['deskID'].startswith('M'))
+    desks_json = pd.DataFrame(desks).to_json(orient='records')  
+    return render_template('customize_desk.html', desks_json=desks_json, meetings=meeting_count, desks=desk_count, current_url=request.path)
 
 @app.route('/employee_manager')
 @login_required
 def employee_manager():
     employeeDB = db.load_employee_data().to_dict('records')
     return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path)
+
+@app.route('/employer_analytics')
+@login_required
+def employer_analytics():
+    return render_template('employer_analytics.html')
 
 @app.route('/edit_employee/<string:employee_id>')
 @login_required
@@ -176,38 +190,57 @@ def allocate_desk():
     main_allocate_task()
 
 @app.route('/save_layout', methods=['POST'])
+@login_required
 def save_layout():
     # Get JSON data from the request
     layout_data = request.get_json()
-    if not layout_data:
+    
+    # Check if the JSON data is provided
+    if layout_data is None:
         return jsonify({'error': 'No data provided'}), 400
 
     engine = connect_db()
     # Use a transactional context manager
     with engine.begin() as conn:
-        for item in layout_data:
-            
-            # e.g., "desk-0" or "meeting-1"
-            item_id = item.get('id')  
-            coordX = item.get('coordX')
-            coordY = item.get('coordY')
-            
-            # Check to make sure it is desk or meeting
-            if item_id.startswith('desk') or item_id.startswith('meeting'):
-                
-                # Extract the numeric part after the dash
-                desk_id = item_id
-                query = text("""
-                    INSERT INTO desk (deskID, coordX, coordY) 
-                    VALUES (:id, :x, :y) 
-                    ON DUPLICATE KEY UPDATE coordX = VALUES(coordX), coordY = VALUES(coordY)
-                """)
-                conn.execute(query, {"id": desk_id, "x": coordX, "y": coordY})
+        # Delete all existing records in the desk table
+        delete_query = text("DELETE FROM desk")
+        conn.execute(delete_query)
 
-            else:
-                continue
+        # Insert new records from layout data if provided
+        if layout_data:
+            for item in layout_data:
+                item_id = item.get('id')
+                coordX = item.get('coordX')
+                coordY = item.get('coordY')
+
+                # Check to make sure it is desk or meeting
+                if item_id.startswith('D') or item_id.startswith('M'):
+                    desk_id = item_id
+                    query = text("""
+                        INSERT INTO desk (deskID, coordX, coordY) 
+                        VALUES (:id, :x, :y)
+                    """)
+                    conn.execute(query, {"id": desk_id, "x": coordX, "y": coordY})
 
     return jsonify({'message': 'Layout saved successfully!'}), 200
+
+# route for analytics page
+@app.route('/desk_utilization_graph')
+def desk_utilization_graph():
+    img = analytics_graphs.daily_desk_utilization()
+    return Response(img, mimetype='image/png')
+
+@app.route('/department_booking_distribution_graph')
+def department_booking_distribution_graph():
+    img = analytics_graphs.department_booking_distribution()
+    return Response(img, mimetype='image/png')
+
+@app.route('/employees_attendance_trend_graph')
+def employees_attendance_trend_graph():
+    img = analytics_graphs.employees_attendance_trend()
+    return Response(img ,mimetype='image/png')
+   
+    
 
 @app.route('/recommendation-f2f-work',methods=['GET'])
 def recommendation_f2f_work():

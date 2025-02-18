@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5">Workspace Analytics</h1>
+    
+    <div class="row">
+        <!-- Department Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/employees_attendance_trend_graph" alt="Employees Attendance Trend Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text"> Show which departments use desks the most.</p>
+                    <p class="card-text"> Understand which departments need more or fewer desks.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Weekly Trends -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/department_booking_distribution_graph" alt="Department Booking Distribution Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text"> Show which departments use desks the most.</p>
+                    <p class="card-text"> Understand which departments need more or fewer desks.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/desk_utilization_graph" alt="Desk Utilization Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text">Track how desk usage changes over time to manage workspace efficiency.</p>
+                    <p class="card-text">Identify peak days and optimize desk allocation.</p>
+                </div>
+            </div>
+        </div>
+        
+
+        
+        
+    </div>
+</div>
+{% endblock %}
+

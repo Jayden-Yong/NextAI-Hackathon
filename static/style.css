@@ -18,6 +18,7 @@
     --theme-1: #A0E4F1;
     --theme-2: #cfdaf0;
     --theme-3: #4A4DE7;
+    --theme-4: #6466e0;
 
     --font-size-xs: 0.75rem; 
     --font-size-sm: 0.875rem;
@@ -429,30 +430,50 @@ body{
 }
 
 /* Style for the box */
-.setup-box {
-    width: 300px;
-    padding: 20px;
-    border-radius: 10px;
-    background: #f8f9fa;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    margin: 20px auto;
-}
-#saveBtn{
-    font-family: 'Poppins', sans-serif;
-    width: 300px;
-    padding: 20px;
-    border-radius: 10px;
-    background: #396592;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    margin: 20px auto;
-}
-#saveBtn:hover{
-    background: #81a6ce;
+.desk-setup{
+    width: 25rem;
+    background-color: var(--theme-2);
+    padding: 0.6rem;
+    border-radius: 0.8rem;
 }
 
-    
+.setup-icon{
+    padding: 1rem;
+    color: #ffffff;
+    background-color: var(--theme-3);
+    border-radius: 0.4rem;
+}
+
+.alter-btn{
+    padding: 0.5rem;
+    background-color: var(--theme-3);
+    color: var(--text-light);
+
+    border-radius: 50%;
+}
+
+.selected {
+    border-radius: 0.8rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+    position: relative; 
+}
+
+.save-btn, .delete-desk-btn{
+    padding: 0.5rem 1rem;
+    border-radius: 0.8rem;
+    background-color: var(--theme-4);
+    color: var(--text-light);
+
+    transition: background-color 0.3s ease;
+}
+
+.save-btn:hover{
+    background-color: var(--theme-3);
+}
+
+.delete-desk-btn{
+    background-color: rgb(255,0,0);
+} 
 
 /* styling for title (customize your workspace layout) */
 .title-h1 {
