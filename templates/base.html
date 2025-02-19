@@ -56,7 +56,7 @@
 
                     <!-- Navigation bar for Employees -->
                     {% else %}
-                    <a href="#" class="nav-item d-flex align-items-center gap-3 nav-active">
+                    <a href="{{url_for('user')}}" class="nav-item d-flex align-items-center gap-3 nav-active">
                         <i class="bi bi-columns-gap"></i>
                         <span class="poppins-semibold">Dashboard</span>
                     </a>
@@ -68,7 +68,7 @@
                         <i class="bi bi-people"></i>
                         <span class="poppins-semibold">Meeting Rooms</span>
                     </a>
-                    <a href="#" class="nav-item d-flex align-items-center gap-3">
+                    <a href="{{url_for('employee_analytics')}}" class="nav-item d-flex align-items-center gap-3">
                         <i class="bi bi-graph-up"></i>
                         <span class="poppins-semibold">Analytics</span>
                     </a>

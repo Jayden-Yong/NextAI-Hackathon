@@ -7,6 +7,7 @@ import seaborn.objects as so
 import io
 import threading
 from database import load_allData
+from current_user_details import get_user_data_df
 from datetime import datetime
 
 employees,desks,booking,department = load_allData()
@@ -68,7 +69,7 @@ def department_booking_distribution():
     
         fig, ax = plt.subplots()
         sns.set_style('darkgrid')
-        sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu')  
+        sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu',hue=res['departmentName'],legend=True)  
         ax.set_title(f'Department-Wise Booking Distribution ({current_year}/{current_month})')
         ax.set_xlabel('Department')
         ax.set_ylabel('Usage of Desks and Meeting Room')
@@ -105,11 +106,13 @@ def employees_attendance_trend():
             .label(title=f"Employee Attendance Trend ({current_year})",
                 x="Month",
                 y="Number of Bookings")
-            
         )
+
+        # Save the plot to a BytesIO object
         img = io.BytesIO()
-        plt.xticks(rotation=90)  # Rotate x-axis labels by 90 degrees
-        plot.save(img, format='png')
+        plot.show()  # Display the plot to apply xticks before saving
+        plt.xticks(rotation=90)  # Rotate x-axis labels
+        plt.savefig(img, format='png', bbox_inches='tight')  # Save with adjusted labels
         plt.close('all')
         img.seek(0)
         
@@ -156,13 +159,14 @@ def preferred_days_by_employees():
     frequency_counts = employees_copy['prefDays'].value_counts().reset_index()
     frequency_counts.columns = ['prefDays', 'Frequency']
     
-    fig, ax = plt.subplots()  # Set figure size
+    
     max_value = frequency_counts['Frequency'].max()
 
     # Create bar plot
     with plot_lock:
+        fig, ax = plt.subplots()  # Set figure size
         sns.set_style('darkgrid')
-        sns.barplot(data=frequency_counts, x='prefDays', y='Frequency', ax=ax, palette='RdPu')
+        sns.barplot(data=frequency_counts, x='prefDays', y='Frequency', ax=ax, palette='RdPu',hue='prefDays',legend=True)
 
         # Set title and labels
         ax.set_title('Employees Preference Day Distribution')
@@ -231,11 +235,113 @@ def weekly_peak_office_usage():
 
 
 
-
-
-
-
-
-
-
 # graph for employee
+
+
+
+def personal_desk_booking_history(user_details):
+    user_data = get_user_data_df(user_details)
+    current_year = datetime.now().year
+    
+    df_current_user = user_data.copy()
+    booking_copy = booking.copy()
+
+    # filtering
+    booking_copy['date'] = pd.to_datetime(booking_copy['date'])
+    booking_copy.set_index('date', inplace=True)
+    booking_copy.sort_index(inplace=True)
+    current_employee_id = df_current_user['employeeID'].iloc[0]
+    booking_copy = booking_copy.loc[(booking_copy.index.year == current_year) & (booking_copy['employeeID']==current_employee_id) & (booking_copy['deskID'].astype(str).str.startswith('D'))]
+    frequency = booking_copy.resample('ME').size().reset_index(name='count')
+    frequency.columns = ['date','count']
+    frequency.set_index('date',inplace=True)
+
+    with plot_lock:
+        fig,ax = plt.subplots()
+        sns.set_style('darkgrid')
+        
+        sns.lineplot(data=frequency,x=frequency.index,y='count', ax=ax,marker='o')
+        ax.set_title(f'Personal Desk Booking History ({current_year})')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Counts')
+
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')
+        img.seek(0)
+
+    return img
+
+def preferred_desk_usage_frequency(user_details):
+    current_year = datetime.now().year
+    user_data = get_user_data_df(user_details)
+
+    df_current_user = user_data.copy()
+    booking_copy = booking.copy()
+
+    # filtering
+    booking_copy['date'] = pd.to_datetime(booking_copy['date'])
+    booking_copy.set_index('date', inplace=True)
+    booking_copy.sort_index(inplace=True)
+    current_employee_id = df_current_user['employeeID'].iloc[0]
+    booking_copy = booking_copy.loc[(booking_copy.index.year == current_year) & (booking_copy['employeeID']==current_employee_id) & (booking_copy['deskID'].astype(str).str.startswith('D'))]
+
+    booking_copy['frequency'] = booking_copy.groupby('deskID')['deskID'].transform(len)
+
+    # plotting
+    with plot_lock:
+        fig,ax = plt.subplots()
+        sns.set_style('darkgrid')
+        sns.barplot(data=booking_copy,x='deskID',y='frequency',palette='mako',hue='deskID')
+        ax.set_title(f'Your Desk Usage Frequency Distribution ({current_year})')
+        ax.set_xlabel('Desk ID')
+        ax.set_ylabel('Frequency')
+
+        img = io.BytesIO()
+        fig.savefig(img,format='png')
+        plt.close('all')
+        img.seek(0)
+    return img
+
+def average_monthly_attendance(user_details):
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    user_data = get_user_data_df(user_details)
+
+    df_current_user = user_data.copy()
+    booking_copy = booking.copy()
+
+    # filtering
+    booking_copy['date'] = pd.to_datetime(booking_copy['date'])
+    booking_copy.set_index('date', inplace=True) 
+    booking_copy.sort_index(inplace=True)
+    current_employee_id = df_current_user['employeeID'].iloc[0]
+    
+    booking_copy = booking_copy.loc[(booking_copy.index.year == current_year) & (booking_copy.index.month == current_month) & (booking_copy['employeeID']==current_employee_id)]
+    total_days = booking_copy.index.days_in_month.max()
+    in_office_days = booking_copy.shape[0]
+    sizes = [total_days,in_office_days]
+    labels = ['Work From Home','In-Office']
+    colors = ['paleturquoise','skyblue']
+
+    with plot_lock:
+        fig,ax = plt.subplots()
+        ax.pie(sizes,labels=labels,colors=colors,autopct='%1.1f%%')
+        ax.axis('equal')
+        ax.set_title(f'Average Monthly Attendance ({current_year}/{current_month})')
+
+        img = io.BytesIO()
+        fig.savefig(img,format='png')
+        plt.close('all')
+        img.seek(0)
+    return img
+
+
+
+
+
+
+
+
+

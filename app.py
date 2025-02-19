@@ -3,11 +3,12 @@ from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
+from current_user_details import get_user_details
 from dynamic_desk_allocation import main_allocate_task
-from current_user_details import user_data
 from database import connect_db
 from sqlalchemy import text
 import analytics_graphs
+import ai_function
 import google.auth.transport.requests
 import pathlib
 import requests
@@ -18,8 +19,6 @@ import database as db
 import bcrypt
 import os
 
-from database import connect_db
-from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -81,6 +80,11 @@ def employee_manager():
 def employer_analytics():
     return render_template('employer_analytics.html')
 
+@app.route('/employee_analytics')
+@login_required
+def employee_analytics():
+    return render_template('employee_analytics.html')
+
 @app.route('/edit_employee/<string:employee_id>')
 @login_required
 def edit_employee(employee_id):
@@ -133,6 +137,7 @@ def callback():
             return redirect(url_for('admin'))
         elif access == 1:
             data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            session['user_details'] = [data]
             session['access'] = access
             session['email'] = email
             session['picture'] = id_info.get("picture")
@@ -167,6 +172,7 @@ def verify_login():
                 return redirect(url_for('admin'))
             elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
                 data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+                session['user_details'] = [data]
                 session['email'] = email
                 session['data'] = data
                 return redirect(url_for('user'))
@@ -224,7 +230,7 @@ def save_layout():
 
     return jsonify({'message': 'Layout saved successfully!'}), 200
 
-# route for analytics page
+# route for employer analytics page
 @app.route('/desk_utilization_graph')
 def desk_utilization_graph():
     img0 = analytics_graphs.daily_desk_utilization()
@@ -254,6 +260,25 @@ def preferred_days_by_employees_graph():
 def weekly_peak_office_usage_graph():
     img5 = analytics_graphs.weekly_peak_office_usage()
     return Response(img5,mimetype='image/png')
+
+# route for employee analytics graph
+@app.route('/personal_desk_booking_history_graph')
+def personal_desk_booking_history_graph():
+    user_details = get_user_details()
+    img0 = analytics_graphs.personal_desk_booking_history(user_details)
+    return Response(img0,mimetype='image/png')
+
+@app.route('/preferred_desk_usage_frequency_graph')
+def preferred_desk_usage_frequency_graph():
+    user_details = get_user_details()
+    img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
+    return Response(img1,mimetype='image/png')
+
+@app.route('/average_monthly_attendance_graph')
+def average_monthly_attendance_graph():
+    user_details = get_user_details()
+    img2 = analytics_graphs.average_monthly_attendance(user_details)
+    return Response(img2,mimetype='image/png')
     
 
 @app.route('/recommendation-f2f-work',methods=['GET'])

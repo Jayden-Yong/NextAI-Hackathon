@@ -1,6 +1,9 @@
 from llm_connection import generate
-from current_user_details import user_data
-import numpy
+from current_user_details import get_user_data_df
+import pandas as pd
+
+user_data=None
+
 if user_data is not None:
     user_data = str(user_data)
 
