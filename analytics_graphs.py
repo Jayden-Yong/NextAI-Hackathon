@@ -5,10 +5,13 @@ import pandas as pd
 import seaborn as sns
 import seaborn.objects as so
 import io
+import threading
 from database import load_allData
 from datetime import datetime
 
 employees,desks,booking,department = load_allData()
+
+plot_lock = threading.Lock()
 
 
 # graph for employer
@@ -25,21 +28,23 @@ def daily_desk_utilization():
     res['Utilization (%)'] = (res.resample("D").size() / total_desks) * 100
 
     # Plotting
-    fig, ax = plt.subplots()
-    sns.lineplot(x=res.index, y='Utilization (%)', data=res, marker='o', ax=ax,palette='Set3',hue=res.index)
-    ax.set_title('Daily Desk Utilization')
-    ax.set_xlabel('Date')
-    ax.set_ylabel('Utilization (%)')
-    ax.set_ylim(0, 100)
-    ax.tick_params(axis='x', labelsize=6) 
-    plt.xticks(rotation = 90)
-    
+    with plot_lock:
+        sns.set_style('darkgrid')
+        fig, ax = plt.subplots()
+        sns.lineplot(x=res.index, y='Utilization (%)', data=res, marker='o', ax=ax,palette='icefire',hue=res.index)
+        ax.set_title(f'Daily Desk Utilization ({current_year}/{current_month})')
+        ax.set_xlabel('Date')
+        ax.set_ylabel('Utilization (%)')
+        ax.set_ylim(0, 100)
+        ax.tick_params(axis='x', labelsize=6) 
+        plt.xticks(rotation = 90)
+        
 
-    # Save the plot to a BytesIO object
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    plt.close(fig)
-    img.seek(0)
+        # Save the plot to a BytesIO object
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')
+        img.seek(0)
     return img
 
 def department_booking_distribution():
@@ -58,22 +63,24 @@ def department_booking_distribution():
 
     # Plotting
     max_value = res['Frequency'].max()
-    fig, ax = plt.subplots()
-    sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu',hue=res['departmentName'])  
-    ax.set_title('Department-Wise Booking Distribution')
-    ax.set_xlabel('Department')
-    ax.set_ylabel('Usage of Desks and Meeting Room')
-    ax.set_ylim(0, 100)
-    ax.tick_params(axis='x', labelsize=8) 
-    ax.set_ylim(0, max_value + 5)
-    plt.xticks(rotation = 90)
-    
 
-    # Save the plot to a BytesIO object
-    img = io.BytesIO()
-    fig.savefig(img, format='png')
-    plt.close(fig)
-    img.seek(0)
+    with plot_lock:
+    
+        fig, ax = plt.subplots()
+        sns.set_style('darkgrid')
+        sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu')  
+        ax.set_title(f'Department-Wise Booking Distribution ({current_year}/{current_month})')
+        ax.set_xlabel('Department')
+        ax.set_ylabel('Usage of Desks and Meeting Room')
+        ax.set_ylim(0, 100)
+        ax.tick_params(axis='x', labelsize=8) 
+        ax.set_ylim(0, max_value + 5)
+        plt.xticks(rotation = 90)
+        # Save the plot to a BytesIO object
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')
+        img.seek(0)
     return img
 
 def employees_attendance_trend():
@@ -90,19 +97,138 @@ def employees_attendance_trend():
     # Resample the data by month using the valid alias 'M' (month end)
     monthly_counts = res.resample('ME', on='date').size().reset_index()
     monthly_counts.columns = ['month', 'bookings']
-    plot = (
-        so.Plot(monthly_counts, x='month', y='bookings')
-        .add(so.Area(alpha=0.7), so.Stack())
-        .label(title="Employee Attendance Trend",
-            x="Month",
-            y="Number of Bookings")
+    with plot_lock:
+        sns.set_style('darkgrid')
+        plot = (
+            so.Plot(monthly_counts, x='month', y='bookings')
+            .add(so.Area(alpha=0.7), so.Stack())
+            .label(title=f"Employee Attendance Trend ({current_year})",
+                x="Month",
+                y="Number of Bookings")
+            
+        )
+        img = io.BytesIO()
+        plt.xticks(rotation=90)  # Rotate x-axis labels by 90 degrees
+        plot.save(img, format='png')
+        plt.close('all')
+        img.seek(0)
         
-    )
-    img = io.BytesIO()
-    plt.xticks(rotation=90)  # Rotate x-axis labels by 90 degrees
-    plot.save(img, format='png')
-    img.seek(0)
     return img
+
+def desk_availability_status():
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+    current_day = datetime.now().day
+
+    booking_copy = booking.copy()
+    booking_copy.set_index(pd.to_datetime(booking_copy['date']),inplace=True)
+    booking_copy.sort_index(inplace=True)
+
+    booking_copy = booking_copy.loc[(booking_copy.index.year == current_year) & (booking_copy.index.month == current_month) & (booking_copy.index.day == current_day)]
+    occupied = booking_copy.shape[0]
+    available = desks.shape[0] - occupied
+
+    # Data for pie chart
+    labels = ['Occupied', 'Not Occupied']
+    sizes = [occupied, available]
+    colors = ['lightpink', 'lightskyblue']
+
+    # Plot pie chart
+    with plot_lock:
+        
+        fig, ax = plt.subplots()
+        ax.pie(sizes, labels=labels, autopct='%1.1f%%', colors=colors, startangle=90)
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        ax.set_title(f'Desk Availability Status ({current_year}/{current_month}/{current_day}) ')
+
+        # Save image to BytesIO
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')  # Close the figure to free memory
+        img.seek(0)
+
+    return img
+
+def preferred_days_by_employees():
+    employees_copy = employees.copy()
+    
+    # Calculate frequency of preferred days
+    frequency_counts = employees_copy['prefDays'].value_counts().reset_index()
+    frequency_counts.columns = ['prefDays', 'Frequency']
+    
+    fig, ax = plt.subplots()  # Set figure size
+    max_value = frequency_counts['Frequency'].max()
+
+    # Create bar plot
+    with plot_lock:
+        sns.set_style('darkgrid')
+        sns.barplot(data=frequency_counts, x='prefDays', y='Frequency', ax=ax, palette='RdPu')
+
+        # Set title and labels
+        ax.set_title('Employees Preference Day Distribution')
+        ax.set_xlabel('Preference Days')
+        ax.set_ylabel('Counts')
+        ax.tick_params(axis='x', labelsize=8) 
+        ax.set_ylim(0, max_value + 3)
+
+        # Save the plot to a BytesIO object
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')  # Free memory
+        img.seek(0)
+
+    return img
+
+def weekly_peak_office_usage():
+    current_week = datetime.today().isocalendar()[1]
+    current_year = datetime.today().year
+    booking_copy = booking.copy()
+
+    # Ensure 'date' column is in datetime format
+    booking_copy['date'] = pd.to_datetime(booking_copy['date'])
+
+    # Filter DataFrame for current week
+    df_current_week = booking_copy[
+        (booking_copy['date'].dt.isocalendar().week == current_week) &
+        (booking_copy['date'].dt.year == current_year)
+    ]
+
+    # Group by day of the week
+    weekly_bookings = df_current_week.groupby(df_current_week['date'].dt.day_name()).size().reset_index(name='total_bookings')
+
+    # Sort by actual weekday order (Monday to Sunday)
+    weekly_bookings['date'] = pd.Categorical(
+        weekly_bookings['date'],
+        categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        ordered=True
+    )
+    weekly_bookings = weekly_bookings.sort_values('date')
+
+    # Create Doughnut Chart
+    with plot_lock:
+        fig, ax = plt.subplots()
+        ax.pie(
+            weekly_bookings['total_bookings'],
+            labels=weekly_bookings['date'],
+            autopct='%1.1f%%',
+            startangle=90,
+            wedgeprops={'edgecolor': 'white'},
+            colors=sns.color_palette("coolwarm")
+        )
+        ax.set_title("Weekly Peak Office Usage")
+
+        # Make it a doughnut chart
+        centre_circle = plt.Circle((0, 0), 0.4, fc='white')
+        fig.gca().add_artist(centre_circle)
+
+        # Save the plot to a BytesIO object
+        img = io.BytesIO()
+        fig.savefig(img, format='png')
+        plt.close('all')  # Free memory
+        img.seek(0)
+
+    return img
+
 
 
 
