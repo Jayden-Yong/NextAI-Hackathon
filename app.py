@@ -279,6 +279,12 @@ def average_monthly_attendance_graph():
     user_details = get_user_details()
     img2 = analytics_graphs.average_monthly_attendance(user_details)
     return Response(img2,mimetype='image/png')
+
+@app.route('/comparison_of_booking_patterns_with_peers_graph')
+def comparison_of_booking_patterns_with_peers_graph():
+    user_details = get_user_details()
+    img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
+    return Response(img3,mimetype='image/png')
     
 
 @app.route('/recommendation-f2f-work',methods=['GET'])

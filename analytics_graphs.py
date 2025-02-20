@@ -338,6 +338,78 @@ def average_monthly_attendance(user_details):
     return img
 
 
+def comparison_of_booking_patterns_with_peers(user_details):
+    user_data = get_user_data_df(user_details)
+
+    current_user_df = user_data.copy()
+    df_employee = employees.copy()
+    df_booking = booking.copy()
+
+    # Assume these DataFrames are already defined:
+    # df_booking: columns: bookingID, employeeID, deskID, date
+    # df_employee: columns: employeeID, name, prefDays, departmentID
+    # current_user_df: a DataFrame (one row) for the current user
+
+    # 1. Get current user's department ID
+    current_dept = current_user_df['departmentID'].iloc[0]
+
+    # 2. Filter employees to get colleagues in the same department
+    colleagues = df_employee[df_employee['departmentID'] == current_dept]
+
+    # 3. Merge booking records for these colleagues
+    merged = pd.merge(colleagues, df_booking, on='employeeID', how='inner')
+
+    # 4. Convert the 'date' column to datetime and extract day of week
+    merged['date'] = pd.to_datetime(merged['date'])
+    merged['day_of_week'] = merged['date'].dt.day_name()
+
+    # 5. Group by employeeID, name, and day_of_week to count bookings
+    grouped = merged.groupby(['employeeID', 'name', 'day_of_week']).size().reset_index(name='count')
+
+    # For each employee, get the day with the maximum bookings
+    max_day = grouped.sort_values(['employeeID', 'count'], ascending=[True, False])\
+                    .groupby('employeeID').head(1)\
+                    .reset_index(drop=True)
+
+    # Now max_day contains: employeeID, name, day_of_week (most frequent), and count
+
+    # 6. Plotting using matplotlib
+    with plot_lock:
+
+        fig, ax = plt.subplots()
+
+        # Create a bar chart: x = employee name, y = count of bookings on most frequent day
+        bars = ax.bar(max_day['name'], max_day['count'], color='skyblue')
+
+        # Set chart title and labels
+        ax.set_title('Colleagues: Most Frequent Booking Day')
+        ax.set_xlabel('Employee Name')
+        ax.set_ylabel('Number of Bookings')
+
+        # Annotate each bar with the day name
+        for bar, day in zip(bars, max_day['day_of_week']):
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2, height + 0.5, day,
+                    ha='center', va='bottom', fontsize=10)
+            ax.set_ylim(0, max(max_day['count']) + 5)
+
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        # Save or show the figure
+        plt.show()
+
+        # Optionally, to save as image in a BytesIO object:
+        import io
+        img = io.BytesIO()
+        fig.savefig(img, format='png', bbox_inches='tight')
+        plt.close('all')
+        img.seek(0)
+
+    return img
+
+
+
 
 
 
