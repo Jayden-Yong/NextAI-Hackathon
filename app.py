@@ -1,4 +1,5 @@
 from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
@@ -8,12 +9,10 @@ from dynamic_desk_allocation import main_allocate_task
 from database import connect_db
 from sqlalchemy import text
 import analytics_graphs
-import ai_function
 import google.auth.transport.requests
 import pathlib
 import requests
 import json
-import ai_function
 import pandas as pd
 import database as db
 import bcrypt
@@ -58,7 +57,7 @@ def admin():
 @app.route('/user')
 @login_required
 def user():
-    return render_template('user.html')
+    return render_template('user.html',current_url=request.path)
 
 @app.route('/desk_manager')
 @login_required
@@ -78,12 +77,12 @@ def employee_manager():
 @app.route('/employer_analytics')
 @login_required
 def employer_analytics():
-    return render_template('employer_analytics.html')
+    return render_template('employer_analytics.html',current_url=request.path)
 
 @app.route('/employee_analytics')
 @login_required
 def employee_analytics():
-    return render_template('employee_analytics.html')
+    return render_template('employee_analytics.html',current_url=request.path)
 
 @app.route('/edit_employee/<string:employee_id>')
 @login_required
@@ -91,6 +90,10 @@ def edit_employee(employee_id):
     employeesDB = db.load_employee_data()
     details = employeesDB.loc[employeesDB['employeeID'] == employee_id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
     return render_template('edit_employee.html', details=details)
+
+@app.route('/ai_assistant')
+def ai_assistant():
+    return render_template('ai_assistant.html',current_url=request.path)
 
 
 # Functional routes
@@ -286,14 +289,6 @@ def comparison_of_booking_patterns_with_peers_graph():
     img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
     return Response(img3,mimetype='image/png')
     
-
-@app.route('/recommendation-f2f-work',methods=['GET'])
-def recommendation_f2f_work():
-    return jsonify(ai_function.recommendation_f2f)
-
-@app.route('/recommendation-meeting',methods=['GET'])
-def recommendation_meeting():
-    return jsonify(ai_function.recommendation_meeting)
 
 
 if __name__ == '__main__':
