@@ -1,6 +1,6 @@
 import pandas as pd
-import pymysql
-from sqlalchemy import create_engine
+from datetime import datetime
+from sqlalchemy import create_engine, text
 from config import DB_CONFIG
 
 # host user password database 
@@ -49,3 +49,37 @@ def load_desks():
     con = connect_db()
     desks = pd.read_sql("SELECT * FROM desk",con)
     return desks
+
+def get_bookingIDs():
+    con = connect_db()
+    ids = pd.read_sql("SELECT bookingID FROM booking",con).to_json(orient='records')
+    return ids
+
+def load_desk_bookings():
+    con = connect_db()
+    bookings = pd.read_sql("SELECT booking.bookingID,booking.employeeID,booking.deskID,booking.date,desk.coordX,desk.coordY FROM booking JOIN desk ON booking.deskID = desk.deskID",con)
+    filter = bookings[bookings['deskID'].str.startswith("D")]
+    return filter
+
+def load_active_team(departmentID,date):
+    con = connect_db()
+    query = "SELECT employee.employeeID,booking.date FROM booking JOIN employee ON employee.employeeID = booking.employeeID WHERE employee.departmentID = %s AND DATE(booking.date) = %s"
+    members = pd.read_sql(query, con, params=(departmentID,date))
+    active_count = len(members)
+    return active_count
+
+def book_desk(employeeID,deskID,datetime):
+    engine = connect_db()
+    query = text("INSERT INTO booking (employeeID, deskID, date) VALUES (:id,:deskID,:date)")
+    with engine.begin() as con:
+        con.execute(query, {"id": employeeID, "deskID": deskID, "date": datetime})
+        con.commit()
+
+def load_meeting_bookings(target_datetime):
+    con = connect_db()
+    query = text("""SELECT bookmeeting.meetingID, bookmeeting.employeeID, bookmeeting.startTime, bookmeeting.endTime,
+                    bookmeeting.deskID, desk.coordX, desk.coordY 
+                    FROM bookmeeting JOIN desk ON desk.deskID = bookmeeting.deskID
+                    WHERE :datetime BETWEEN bookmeeting.startTime AND bookmeeting.endTime""")
+    bookings = pd.read_sql(query, con, params={"datetime": target_datetime})
+    return bookings

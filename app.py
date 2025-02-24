@@ -56,7 +56,7 @@ def admin():
 @app.route('/user')
 @login_required
 def user():
-    return render_template('user.html')
+    return render_template('user.html', current_url=request.path)
 
 @app.route('/desk_manager')
 @login_required
@@ -151,16 +151,19 @@ def verify_login():
         if bcrypt.checkpw(password.encode('utf-8'), stored_pw.encode('utf-8')):
 
             # Check user privilege
-            if accounts.loc[accounts['email'] == email, 'access'].values[0] == 0:
-                data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
-                session['email'] = email
-                session['data'] = data
-                return redirect(url_for('admin'))
-            elif accounts.loc[accounts['email'] == email, 'access'].values[0] == 1:
-                data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
-                session['email'] = email
-                session['data'] = data
-                return redirect(url_for('user'))
+            access = int(accounts.loc[accounts['email'] == email, 'access'].values[0])
+            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            now = datetime.now()
+            session.update({
+                'access': access,
+                'email': email,
+                'date': now.strftime("%d %B %Y"),
+                'day': now.strftime("%A"),
+                'login-time': now.strftime("%H:%M:%S"),
+                'data': data
+            })
+
+            return redirect(url_for('admin' if access == 0 else 'user'))
             
         else:
             error = "Invalid password"
@@ -174,6 +177,107 @@ def verify_login():
 def logout():
     session.clear()
     return redirect(url_for('home'))
+
+
+@app.route('/book_desk')
+@login_required
+def book_desk():
+    # Preset target date to current date
+    target_date = pd.Timestamp(session['date'])
+    
+    # Preapre desks json for layout rendering
+    desks = db.load_desks().to_dict('records')
+    desks_json = pd.DataFrame(desks).to_json(orient='records')
+
+    # Retrieve booked desks
+    desk_bookings = db.load_desk_bookings()
+    desk_bookings['date'] = pd.to_datetime(desk_bookings['date'], format="%d %B %Y")
+    booked = desk_bookings[desk_bookings['date'] == target_date].to_dict('records')
+    booked_json = pd.DataFrame(booked).to_json(orient='records')
+    total = len(booked)
+
+    # Find active team members
+    active = db.load_active_team(session['data']['departmentID'],target_date)
+
+    # Creates a dictionary with booking data and save it to a session variable
+    bookingData = {
+        'target_date'    : target_date,
+        'desks_json'     : desks_json,
+        'booked_json'    : booked_json,
+        'active'         : total,
+        'active_members' : active
+    }
+    session['bookingData'] = bookingData
+
+    message = request.args.get('message', '')
+    return render_template('book_desk.html', current_url=request.path, message=message)
+
+@app.route('/update_bookingData', methods=["POST"])
+@login_required
+def update_bookingData():
+    # Retrieve target date and prepare it for comparison
+    req_date = request.json.get('selectedDate')
+    target_date = pd.Timestamp(req_date).date()
+
+    # Update booked_json and other infos in bookingData session var
+    desk_bookings = db.load_desk_bookings()
+    desk_bookings['date'] = pd.to_datetime(desk_bookings['date']).dt.date
+    booked = desk_bookings[desk_bookings['date'] == target_date].to_dict('records')
+    booked_json = pd.DataFrame(booked).to_json(orient='records')
+    total = len(booked)
+
+    session['bookingData']['booked_json'] = booked_json
+    session['bookingData']['active'] = total
+    session['bookingData']['active_members'] = db.load_active_team(session['data']['departmentID'],req_date)
+
+    # Parse booked_json back to a Python object
+    booked_data = json.loads(booked_json)
+
+    response_data = {
+        'booked': booked_data,
+        'active': session['bookingData']['active'],
+        'active_members': session['bookingData']['active_members']
+    }
+
+    return jsonify(response_data)
+
+
+@app.route('/booking_logic', methods=["POST"])
+@login_required
+def booking_logic():
+    deskID = request.form['deskID']
+    date_string = request.form['target-date']
+
+    # Parse and format the date string
+    date_object = datetime.strptime(date_string, "%Y-%m-%d")
+    formatted_date = date_object.strftime("%d %B %Y")
+
+    db.book_desk(session['data']['employeeID'],deskID,date_string)
+    message = f"Your reservation for desk {deskID} on {formatted_date} has been confirmed."
+    return redirect(url_for('book_desk', message=message))
+
+
+@app.route('/book_meeting')
+@login_required
+def book_meeting():
+    # Preapre desks json for layout rendering
+    desks_pd = db.load_desks()
+    desks = desks_pd.to_dict('records')
+    desks_json = pd.DataFrame(desks).to_json(orient='records')
+
+    # Count the amount of meeting rooms
+    meetings = desks_pd[desks_pd['deskID'].str.startswith('M')]
+
+    # Preset target datetime to current date and time
+    target_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Prepare booked data as a json
+    meeting_booked = db.load_meeting_bookings(target_datetime)
+    booked_json = pd.DataFrame(meeting_booked).to_json(orient="records")
+    total_booked = len(meeting_booked)
+    total_left = len(meetings) - total_booked
+
+
+    return render_template("book_meeting.html", current_url=request.path, desks_json=desks_json, booked_json=booked_json, booked=total_booked, left=total_left)
 
 
 @app.route('/allocate-desk', methods=['POST'])

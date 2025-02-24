@@ -156,6 +156,20 @@ table tr td:last-child{
     background-color: rgb(255,0,0);
 }
 
+.submit-btn{
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    background-color: rgb(108, 234, 108);
+    transition: box-shadow 0.3s ease;
+}
+
+.submit-btn:hover{
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        0 4px 8px rgba(0, 0, 0, 0.1),
+        0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
 /** Adjustments for Google Icons **/
 .material-symbols-outlined {
     font-variation-settings:
@@ -174,7 +188,7 @@ table tr td:last-child{
     transition: color 0.3s ease, background-color 0.8s ease;
 }
 
-.nav-active, .nav-item:hover{
+.nav-active, .nav-item:hover, .nav-item:focus{
     background-color: var(--theme-2);
     color: var(--theme-3);
 }
@@ -212,7 +226,6 @@ header{
     display: none;
     position: absolute;
     right: 0;
-    margin-top: 0.6rem;
     padding: 0.8rem;
     border-radius: 0.6rem;
     border: solid 0.1rem var(--theme-3);
@@ -224,7 +237,7 @@ header{
     );
     backdrop-filter: blur(8px);
 
-    width: 18vw;
+    min-width: 18vw;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 999;
 }
@@ -251,7 +264,7 @@ header{
     background-color: #c5d3f0;
 }
 
-.show {display: block;}
+.show {display: block !important;}
 
 .logo{
     position: relative;
@@ -284,7 +297,7 @@ body{
 }
 
 /* BANNERS*/
-.welcome-banner{
+.welcome-banner, .booking-widget{
     background-image: url(images/welcome-banner.jpg);
     background-size: cover;
     background-attachment: fixed;
@@ -295,7 +308,7 @@ body{
     border-radius: 1.4rem;
 }
 
-.welcome-banner-content{
+.welcome-banner-content, .booking-widget-content{
     position: relative;
     color: var(--text-light);
     height: 8rem;
@@ -328,7 +341,7 @@ body{
 .banner-content{
     position: relative;
     z-index: 2;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.9);
 }
 
 /** LOGIN PAGE **/
@@ -482,7 +495,7 @@ body{
 }
 
 /* remove image border */
-.draggable[src] {
+.draggable[src], .selectable[src] {
     background: transparent;
     border: none;
 }
@@ -634,4 +647,63 @@ body{
 .stretch-o:after {
     --color: var(--color-two);
     mask: radial-gradient(circle at top left, white, transparent);
+}
+
+/* ----- EMPLOYEE PAGES -----*/
+/* BOOKING */
+.booking-widget{
+    background-image: url(images/booking-widget-background.jpg);
+    background-attachment: fixed;
+}
+
+.booking-widget-counter{
+    position: relative;
+    padding: 1rem;
+    border-radius: 0.6rem;
+    background-color: var(--bg-color-trans-6);
+    backdrop-filter: blur(4px);
+    width: 12rem;
+    height: 100%;
+}
+
+#date-input{
+    background-color: var(--bg-color-trans-6);
+    border: solid 0.1rem var(--theme-4);
+    border-radius: 0.6rem;
+    padding: 0.6rem;
+}
+
+#map-layout{
+    position: relative;
+    width: 100%;
+    height: 600px;
+    border-radius: 1.4rem;
+    border: solid 0.1rem var(--theme-3);
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1), 
+        0 8px 10px rgba(0, 0, 0, 0.1), 
+        0 12px 15px rgba(0, 0, 0, 0.1), 
+        0 16px 20px rgba(0, 0, 0, 0.1); 
+    background-image: url(images/floor-background.jpg);
+    background-size: cover;
+}
+
+.selectable {
+    width: 100px;
+    height: 100px;
+    background: #f2f2f2;
+    border: 1px solid #333;
+    position: absolute;
+    text-align: center;
+    line-height: 100px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.success-msg{
+    padding: 1rem 2rem;
+    background-color: rgb(187, 241, 187);
+    color: rgb(12, 173, 0);
+    border-radius: 1.4rem;
+    border: solid 0.1rem rgb(12, 173, 0);
 }

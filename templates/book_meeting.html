@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Booking | Meeting Rooms{% endblock %}
+
+{% block content %}
+<div class="banner">
+    <div class="container">
+        <div class="banner-content poppins-semibold display-5"><span>Meeting Room Booking</span></div>
+    </div>
+</div>
+
+<section class="container">
+    <div class="booking-widget d-flex">
+        <div class="booking-widget-content d-flex align-items-center">
+            <div>
+                <input id="date-input" type="datetime-local" class="poppins-semibold theme-3">
+                <span class="poppins-semibold d-block fxxl mt-1">Let's see who's in.</span>
+            </div>
+        </div> 
+
+        <div class="counter-group d-flex gap-3 ms-auto">
+            <div class="booking-widget-counter">
+                <span class="poppins-semibold theme-3">OCCUPIED</span>
+                <span id="active-counter" class="d-block poppins-bold display-4 mt-1">{{ booked }}</span>
+            </div>
+            <div class="booking-widget-counter">
+                <span class="poppins-semibold theme-3">ROOMS LEFT</span>
+                <span id="member-counter" class="d-block poppins-bold display-4 mt-1">{{ left }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div id="map-layout"></div>
+</section>
+
+<script id="desks_json" type="application/json">{{ desks_json | safe }}</script>
+<script id="booked_json" type="application/json">{{ booked_json | safe }}</script>
+{% endblock %}
+
+{% block jsimports %}
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="{{ url_for('static', filename='js/book_meeting.js') }}"></script>
+{% endblock %}

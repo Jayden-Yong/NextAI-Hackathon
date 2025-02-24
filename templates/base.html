@@ -7,10 +7,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>{% block title %}{% endblock %}</title>
 
-        <!-- JS imports -->
-        <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
-        {% block jsimports %}{% endblock %}
-
         <!-- Page custom CSS -->
         {% block customCSS %}{% endblock %} 
 
@@ -57,20 +53,25 @@
 
                     <!-- Navigation bar for Employees -->
                     {% else %}
-                    <a href="#" class="nav-item d-flex align-items-center gap-3 nav-active">
+                    <a href="{{ url_for('user') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('user') %}nav-active{% endif %}">
                         <i class="bi bi-columns-gap"></i>
                         <span class="poppins-semibold">Dashboard</span>
                     </a>
                     <div class="dropdown">
-                        <a href="#" class="nav-item d-flex align-items-center gap-3" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a href="#" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('book_desk') or current_url == url_for('book_meeting') %}nav-active{% endif %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-calendar4-event"></i>
-                            <span class="poppins-semibold">Desk Booking</span>
+                            <span class="poppins-semibold">Booking</span>
                         </a>
 
-                        <ul class="dropdown-menu dropdown-content">
-                            <li><a class="dropdown-item" href="#">Action</a></li>
-                            <li><a class="dropdown-item" href="#">Another action</a></li>
-                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        <ul class="dropdown-menu dropdown-content mt-2">
+                            <li><a class="dropdown-item" href="{{ url_for('book_desk') }}">
+                                <span class="material-symbols-outlined">table_restaurant</span>
+                                <span class="poppins-medium">Book a Desk</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('book_meeting') }}">
+                                <span class="material-symbols-outlined">meeting_room</span>
+                                <span class="poppins-medium">Book a Meeting Room</span>
+                            </a></li>
                         </ul>
                     </div>
                     
@@ -94,7 +95,7 @@
                                 <img src="{{ url_for('static', filename='images/default.png') }}" alt="Profile picture">
                             {% endif %}
                         </div>
-                        <div id="profileMenu" class="dropdown-menu dropdown-content">
+                        <div id="profileMenu" class="dropdown-menu dropdown-content mt-2">
                             <span class="d-block poppins-bold fxs">{{ session['data']['name'] }}</span>
                             <div class="mt-2">
                                 <a href="#">
@@ -112,6 +113,10 @@
             </div>
         </header>
         {% block content %}{% endblock %}
+
+        <!-- JS imports -->
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        {% block jsimports %}{% endblock %}
 
     </body>
 
