@@ -1,15 +1,18 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from datetime import datetime
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
+from current_user_details import get_user_details
 from dynamic_desk_allocation import main_allocate_task
+from sqlalchemy import text
+import analytics_graphs
 import google.auth.transport.requests
 import pathlib
 import requests
 import json
-import ai_function
 import pandas as pd
 import database as db
 import bcrypt
@@ -73,12 +76,26 @@ def employee_manager():
     employeeDB = db.load_employee_data().to_dict('records')
     return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path)
 
+@app.route('/employer_analytics')
+@login_required
+def employer_analytics():
+    return render_template('employer_analytics.html',current_url=request.path)
+
+@app.route('/employee_analytics')
+@login_required
+def employee_analytics():
+    return render_template('employee_analytics.html',current_url=request.path)
+
 @app.route('/edit_employee/<string:employee_id>')
 @login_required
 def edit_employee(employee_id):
     employeesDB = db.load_employee_data()
     details = employeesDB.loc[employeesDB['employeeID'] == employee_id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
     return render_template('edit_employee.html', details=details)
+
+@app.route('/ai_assistant')
+def ai_assistant():
+    return render_template('ai_assistant.html',current_url=request.path)
 
 
 # Functional routes
@@ -319,13 +336,62 @@ def save_layout():
 
     return jsonify({'message': 'Layout saved successfully!'}), 200
 
-@app.route('/recommendation-f2f-work',methods=['POST'])
-def recommendation_f2f_work():
-    return (ai_function.recommendation_f2f)
+# route for employer analytics page
+@app.route('/desk_utilization_graph')
+def desk_utilization_graph():
+    img0 = analytics_graphs.daily_desk_utilization()
+    return Response(img0, mimetype='image/png')
 
-@app.route('/recommendation-meeting',methods=['POST'])
-def recommendation_meeting():
-    return (ai_function.recommendation_meeting)
+@app.route('/department_booking_distribution_graph')
+def department_booking_distribution_graph():
+    img1 = analytics_graphs.department_booking_distribution()
+    return Response(img1, mimetype='image/png')
+
+@app.route('/employees_attendance_trend_graph')
+def employees_attendance_trend_graph():
+    img2 = analytics_graphs.employees_attendance_trend()
+    return Response(img2 ,mimetype='image/png')
+
+@app.route('/desk_availability_status_graph')
+def desk_availability_status_graph():
+    img3 = analytics_graphs.desk_availability_status()
+    return Response(img3,mimetype='image/png')
+
+@app.route('/preferred_days_by_employees_graph')
+def preferred_days_by_employees_graph():
+    img4 = analytics_graphs.preferred_days_by_employees()
+    return Response(img4,mimetype='image/png')
+
+@app.route('/weekly_peak_office_usage_graph')
+def weekly_peak_office_usage_graph():
+    img5 = analytics_graphs.weekly_peak_office_usage()
+    return Response(img5,mimetype='image/png')
+
+# route for employee analytics graph
+@app.route('/personal_desk_booking_history_graph')
+def personal_desk_booking_history_graph():
+    user_details = get_user_details()
+    img0 = analytics_graphs.personal_desk_booking_history(user_details)
+    return Response(img0,mimetype='image/png')
+
+@app.route('/preferred_desk_usage_frequency_graph')
+def preferred_desk_usage_frequency_graph():
+    user_details = get_user_details()
+    img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
+    return Response(img1,mimetype='image/png')
+
+@app.route('/average_monthly_attendance_graph')
+def average_monthly_attendance_graph():
+    user_details = get_user_details()
+    img2 = analytics_graphs.average_monthly_attendance(user_details)
+    return Response(img2,mimetype='image/png')
+
+@app.route('/comparison_of_booking_patterns_with_peers_graph')
+def comparison_of_booking_patterns_with_peers_graph():
+    user_details = get_user_details()
+    img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
+    return Response(img3,mimetype='image/png')
+    
 
 
 if __name__ == '__main__':

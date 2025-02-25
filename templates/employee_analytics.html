@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5 poppins-bold">Workspace Analytics</h1>
+
+    <div class="row">
+        <!-- desk utilization -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/personal_desk_booking_history_graph" alt="Personal Desk Booking History Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Displays an your past bookings over time.</p>
+                    <p class="card-text poppins-semibold">Helps track your own office attendance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- employees attendance trend -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/preferred_desk_usage_frequency_graph" alt="Preferred Desk Usage Frequency Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular" > Shows which desks you book most often.</p>
+                    <p class="card-text poppins-semibold"> Helps you determine desk that match your preferences.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- desk availability status -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/average_monthly_attendance_graph" alt="Average Monthly Attendance Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Shows the percentage of office vs. remote work days.</p>
+                    <p class="card-text poppins-semibold">Helps you balance your hybrid schedule.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- weekly peak office usage -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/comparison_of_booking_patterns_with_peers_graph" alt="Comparison of Booking Pattern With Peers Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Compares an your booking habits with your department/team.</p>
+                    <p class="card-text poppins-semibold">Provides insights into hybrid work preferences among colleagues.</p>
+                </div>
+            </div>
+        </div>
+  
+    </div>
+</div>
+{% endblock %}
+
