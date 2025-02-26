@@ -12,6 +12,10 @@ def connect_db():
     connection = create_engine(url)
     return connection
 
+# Special function to check for intersections between booking intervals
+def intervals_intersect(start1, end1, start2, end2):
+    return max(start1, start2) < min(end1, end2)
+
 # SQL command related methods beyond this point
 # load data from mysql into pandas dataframe
 def load_allData():
@@ -75,11 +79,31 @@ def book_desk(employeeID,deskID,datetime):
         con.execute(query, {"id": employeeID, "deskID": deskID, "date": datetime})
         con.commit()
 
-def load_meeting_bookings(target_datetime):
+def load_meeting_bookings(target_start, target_end):
     con = connect_db()
     query = text("""SELECT bookmeeting.meetingID, bookmeeting.employeeID, bookmeeting.startTime, bookmeeting.endTime,
                     bookmeeting.deskID, desk.coordX, desk.coordY 
                     FROM bookmeeting JOIN desk ON desk.deskID = bookmeeting.deskID
-                    WHERE :datetime BETWEEN bookmeeting.startTime AND bookmeeting.endTime""")
-    bookings = pd.read_sql(query, con, params={"datetime": target_datetime})
-    return bookings
+                """)
+    bookings = pd.read_sql(query, con)
+
+    # Convert target start and end datetime strings to datetime objects for comparison
+    target_start = datetime.strptime(target_start, "%Y-%m-%d %H:%M:%S")
+    target_end = datetime.strptime(target_end, "%Y-%m-%d %H:%M:%S")
+
+    # Filter bookings that intersect with the target_datetime
+    filtered_bookings = bookings[
+        bookings.apply(lambda row: intervals_intersect(
+            target_start, target_end, 
+            row['startTime'], row['endTime']
+        ), axis=1)
+    ]
+
+    return filtered_bookings
+
+def book_meeting(employeeID,deskID,startTime,endTime):
+    engine = connect_db()
+    query = text("INSERT INTO bookmeeting (employeeID,deskID,startTime,endTime) VALUES(:id,:deskID,:startTime,:endTime)")
+    with engine.begin() as con:
+        con.execute(query, {"id": employeeID, "deskID": deskID, "startTime": startTime, "endTime": endTime})
+        con.commit()

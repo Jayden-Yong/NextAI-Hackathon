@@ -1,6 +1,6 @@
 from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
@@ -283,18 +283,64 @@ def book_meeting():
     desks_json = pd.DataFrame(desks).to_json(orient='records')
 
     # Count the amount of meeting rooms
-    meetings = desks_pd[desks_pd['deskID'].str.startswith('M')]
+    session['total_rooms'] = len(desks_pd[desks_pd['deskID'].str.startswith('M')])
 
     # Preset target datetime to current date and time
-    target_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    target_start = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Sets default booking time length to 1hr
+    target_end = (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
     # Prepare booked data as a json
-    meeting_booked = db.load_meeting_bookings(target_datetime)
+    meeting_booked = db.load_meeting_bookings(target_start, target_end)
     booked_json = pd.DataFrame(meeting_booked).to_json(orient="records")
     total_booked = len(meeting_booked)
-    total_left = len(meetings) - total_booked
+    total_left = session['total_rooms'] - total_booked
 
+    message = request.args.get('message', '')
+    return render_template("book_meeting.html", current_url=request.path, desks_json=desks_json, booked_json=booked_json, booked=total_booked, left=total_left, message=message)
 
-    return render_template("book_meeting.html", current_url=request.path, desks_json=desks_json, booked_json=booked_json, booked=total_booked, left=total_left)
+@app.route('/update_meeting_bookingData', methods=['POST'])
+@login_required
+def update_meeting_bookingData():
+    # Retrieve updates on new target datetime and duration
+    req_datetime = request.json.get('selectedDatetime')
+    req_duration = request.json.get('duration')
+
+    # Prepare the data in the required formats
+    duration = int(req_duration)
+    target_start = datetime.strptime(req_datetime,"%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+    target_end = (datetime.strptime(req_datetime,"%Y-%m-%dT%H:%M") + timedelta(hours=duration)).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Prepare booked data as a json
+    meeting_booked = db.load_meeting_bookings(target_start, target_end)
+    booked_json = pd.DataFrame(meeting_booked).to_dict(orient="records")
+    total_booked = len(meeting_booked)
+    total_left = session['total_rooms'] - total_booked
+
+    # Prepare a json as a response
+    response_data = {
+        'booked': booked_json,
+        'total_booked': total_booked,
+        'total_left': total_left
+    }
+
+    return jsonify(response_data)
+
+@app.route('/meeting_booking_logic', methods=['POST'])
+@login_required
+def meeting_booking_logic():
+    deskID = request.form["meetingID"]
+    req_start = request.form["target-start"]
+    duration = int(request.form["duration"])
+
+    # Prepare data before inserting into database
+    target_start = datetime.strptime(req_start,"%Y-%m-%dT%H:%M").strftime("%Y-%m-%d %H:%M:%S")
+    target_end = (datetime.strptime(req_start,"%Y-%m-%dT%H:%M") + timedelta(hours=duration)).strftime("%Y-%m-%d %H:%M:%S")
+
+    # Execute booking query function
+    db.book_meeting(session['data']['employeeID'],deskID,target_start,target_end)
+
+    message = f"Your reservation for meeting room {deskID} on {target_start} for {duration} hours has been confirmed."
+    return redirect(url_for('book_meeting', message=message))
 
 
 @app.route('/allocate-desk', methods=['POST'])
