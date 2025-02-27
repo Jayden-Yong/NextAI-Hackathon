@@ -194,8 +194,15 @@ def employer_setting():
     current_user = get_user_data_df(get_user_details())
     id = current_user['employeeID'].iloc[0]
     details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
-    first_name = details['name'].split(' ')[0]
-    last_name = details['name'].split(' ')[1]
+    splitted_name = details['name'].split(' ')
+    if len(splitted_name)<=1:
+        first_name = splitted_name[0]
+        last_name = ""
+    else:
+        first_name = splitted_name[0]
+        splitted_name.pop(0)
+        last_name = ' '.join(splitted_name)
+    
     job = details['departmentName']
     email = details['email']
     return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id)
@@ -213,6 +220,7 @@ def update_employer_profile():
     old_id = current_user['employeeID'].iloc[0]
 
     current_user['employeeID'] = id
+    session['data']['name'] = name
     session['user_details'] = [current_user.to_dict(orient="records")[0]]
     session.modified = True
     try:
@@ -228,8 +236,16 @@ def employee_setting():
     current_user = get_user_data_df(get_user_details())
     id = current_user['employeeID'].iloc[0]
     details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
-    first_name = details['name'].split(' ')[0]
-    last_name = details['name'].split(' ')[1]
+    splitted_name = details['name'].split(' ')
+    if len(splitted_name)<=1:
+        first_name = splitted_name[0]
+        last_name = ""
+    else:
+        first_name = splitted_name[0]
+        splitted_name.pop(0)
+        last_name = ' '.join(splitted_name)
+    
+    
     job = details['departmentName']
     email = details['email']
     prefDays = details['prefDays']
@@ -248,6 +264,7 @@ def update_employee_profile():
     current_user = get_user_data_df(get_user_details())
 
     current_user['prefDays'] = prefDays
+    session['data']['name'] = name
     session['user_details'] = [current_user.to_dict(orient="records")[0]]
     session.modified = True
     try:
