@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    function saveLayout(){
+    window.saveLayout = function() {
         const items = document.querySelectorAll('.draggable');
         const layoutData = [];
 
