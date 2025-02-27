@@ -36,12 +36,12 @@ def vanna_train():
     vn.train(ddl=ddl_statements)
     vn.train(documentation=documentation)
 
-  
+
 vanna_connect_db()
 # please uncomment the code below for the first time , and whenever u wanted to retrain the model / can do it in the UI as well
 # vanna_train()
 
  
-app = VannaFlaskApp(vn)
+app = VannaFlaskApp(vn , allow_llm_to_see_data=True)
 if __name__ == '__main__':
     app.run()
