@@ -6,7 +6,6 @@ from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
 from current_user_details import get_user_details,get_user_data_df
-from dynamic_desk_allocation import main_allocate_task
 from sqlalchemy import text
 import analytics_graphs
 import google.auth.transport.requests
@@ -15,10 +14,11 @@ import requests
 import json
 import pandas as pd
 import database as db
+from flask_bcrypt import Bcrypt
 import bcrypt
 import os
 
-from database import connect_db , employer_update_profile , employee_update_profile
+from database import connect_db , employer_update_profile , employee_update_profile , load_accounts
 from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
@@ -272,6 +272,41 @@ def update_employee_profile():
         return jsonify({"success": True, "message": "Profile updated successfully!"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+# account password changing route
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    bcrypt = Bcrypt()
+    data = request.get_json()
+    new_password = data.get('new_password')
+
+    if not new_password:
+        return jsonify({"success": False, "error": "New password not provided."}), 400
+
+    import re
+    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', new_password):
+        return jsonify({"success": False, "error": "Password is too weak."}), 400
+
+    current = session.get('data')
+    current_id = current['employeeID']
+
+    hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    
+    engine = connect_db()
+    query = text("""
+        UPDATE accounts
+        SET password_hash = :password
+        WHERE employeeID = :id;
+    """)
+    with engine.begin() as con:
+        con.execute(query, {
+            "password": hashed_pw,
+            "id": current_id
+        })
+
+    return jsonify({"success": True, "message": "Password changed successfully!"})
+
 
 @app.route('/book_desk')
 @login_required

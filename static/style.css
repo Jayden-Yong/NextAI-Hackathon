@@ -750,3 +750,6 @@ body{
     opacity: 1;
     transform: translateY(0);
 }
+#password-form {
+    max-width: 400px;
+}
