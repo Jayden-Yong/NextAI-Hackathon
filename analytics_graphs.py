@@ -27,7 +27,7 @@ def daily_desk_utilization():
 
     # Resample daily and calculate desk utilization percentage
     res['Utilization (%)'] = (res.resample("D").size() / total_desks) * 100
-
+     
     # Plotting
     with plot_lock:
         sns.set_style('darkgrid')
