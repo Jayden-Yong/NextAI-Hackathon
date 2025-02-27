@@ -76,16 +76,6 @@ def employee_manager():
     employeeDB = db.load_employee_data().to_dict('records')
     return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path)
 
-@app.route('/employer_analytics')
-@login_required
-def employer_analytics():
-    return render_template('employer_analytics.html',current_url=request.path)
-
-@app.route('/employee_analytics')
-@login_required
-def employee_analytics():
-    return render_template('employee_analytics.html',current_url=request.path)
-
 @app.route('/edit_employee/<string:employee_id>')
 @login_required
 def edit_employee(employee_id):
@@ -413,10 +403,6 @@ def meeting_booking_logic():
     return redirect(url_for('book_meeting', message=message))
 
 
-@app.route('/allocate-desk', methods=['POST'])
-def allocate_desk():
-    main_allocate_task()
-
 @app.route('/save_layout', methods=['POST'])
 @login_required
 def save_layout():
@@ -513,3 +499,15 @@ def comparison_of_booking_patterns_with_peers_graph():
 if __name__ == '__main__':
     # Runs the app in debug mode
     app.run(debug=True,port=5000)
+
+# analytics page route ,can delete in final version(scared need to use back later)
+
+# @app.route('/employer_analytics')
+# @login_required
+# def employer_analytics():
+#     return render_template('employer_analytics.html',current_url=request.path)
+
+# @app.route('/employee_analytics')
+# @login_required
+# def employee_analytics():
+#     return render_template('employee_analytics.html',current_url=request.path)

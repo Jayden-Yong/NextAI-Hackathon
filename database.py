@@ -32,7 +32,8 @@ def load_allData():
     # department data for employees
     department = pd.read_sql("SELECT * FROM department",con)
     
-    return employees,desks,booking,department
+    bookmeeting = pd.read_sql('SELECT * FROM bookmeeting',con)
+    return employees,desks,booking,department,bookmeeting
 
 def load_employees():
     con = connect_db()
