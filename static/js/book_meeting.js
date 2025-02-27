@@ -11,21 +11,23 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Set deafult value for date to current date
     const datetimeInput = document.getElementById("date-input");
+    const duration = document.getElementById("duration-input");
     const now = new Date();
     const formatDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     datetimeInput.value = formatDate;
     datetimeInput.min = formatDate;
 
-    // Redirect when dateInput is upadated
+    // Redirect when datetimeInput is upadated
     datetimeInput.addEventListener('change', function() {
         console.log('Date input changed');
         const selectedDatetime = datetimeInput.value;
-        fetch('/update_bookingData', {
+        const selectedDuration = duration.value;
+        fetch('/update_meeting_bookingData', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ selectedDatetime: selectedDatetime })
+            body: JSON.stringify({ selectedDatetime: selectedDatetime, duration: selectedDuration })
         })
         .then(response => response.json())
         .then(data => {
@@ -34,8 +36,8 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const active = document.getElementById("active-counter");
             const member = document.getElementById("member-counter");
-            active.textContent = data.active;
-            member.textContent = data.active_members;
+            active.textContent = data.total_booked;
+            member.textContent = data.total_left;
         })
         .catch(error => {
             console.error('Error:', error);
@@ -43,6 +45,33 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     })
 
+    // Redirect when duration is upadated
+    duration.addEventListener('change', function() {
+        console.log('Date input changed');
+        const selectedDatetime = datetimeInput.value;
+        const selectedDuration = document.getElementById("duration-input").value;
+        fetch('/update_meeting_bookingData', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ selectedDatetime: selectedDatetime, duration: selectedDuration })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            renderLayout(desks,data.booked);
+
+            const active = document.getElementById("active-counter");
+            const member = document.getElementById("member-counter");
+            active.textContent = data.total_booked;
+            member.textContent = data.total_left;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while booking the desk.');
+        });
+    })
 
     // Desk selection logger
     function selectDesk(desk){
@@ -66,7 +95,33 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
 
-    
+    // Stop event propagation for the book button
+    const bookButton = document.querySelector('.submit-btn');
+    bookButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        bookDesk();
+    });
+
+    // Booking Logic
+    window.bookDesk = function() {
+        var isSelected = true;
+
+        if (selectedDesk != null){
+            const targetDesk = document.getElementById("meetingID");
+            const targetStart = document.getElementById("target-start");
+            const targetDuration = document.getElementById("duration")
+            targetDesk.value = selectedDesk.getAttribute('data-id');
+            targetStart.value = datetimeInput.value;
+            targetDuration.value = duration.value;
+        } else {
+            errorText = document.getElementById("selectDeskError");
+            errorText.classList.remove("d-none");
+            isSelected = false;
+        }
+        console.log(selectedDesk);
+
+        return isSelected;
+    }
 
 
     // Layout renderer
