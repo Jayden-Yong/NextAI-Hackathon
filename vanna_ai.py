@@ -39,7 +39,7 @@ def vanna_train():
   
 vanna_connect_db()
 # please uncomment the code below for the first time , and whenever u wanted to retrain the model / can do it in the UI as well
-vanna_train()
+# vanna_train()
 
  
 app = VannaFlaskApp(vn)

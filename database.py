@@ -83,3 +83,45 @@ def load_meeting_bookings(target_datetime):
                     WHERE :datetime BETWEEN bookmeeting.startTime AND bookmeeting.endTime""")
     bookings = pd.read_sql(query, con, params={"datetime": target_datetime})
     return bookings
+
+def employer_update_profile(name , email , id , departmentName , old_id):
+    engine = connect_db()
+    query = text("""
+        UPDATE employee e
+        JOIN accounts a ON e.employeeID = a.employeeID
+        JOIN department d ON e.departmentID = d.departmentID
+        SET e.name = :name,
+            a.email = :email,
+            e.employeeID = :new_id,
+            d.departmentName = :departmentName
+        WHERE e.employeeID = :old_id;
+    """)
+    with engine.begin() as con:
+        con.execute(query, {
+            "name": name,
+            "email": email,
+            "new_id": id,
+            "departmentName": departmentName,
+            "old_id": old_id
+        })
+
+def employee_update_profile(name , email , id , departmentName , prefDays):
+    engine = connect_db()
+    query = text("""
+        UPDATE employee e
+        JOIN accounts a ON e.employeeID = a.employeeID
+        JOIN department d ON e.departmentID = d.departmentID
+        SET e.name = :name,
+            a.email = :email,
+            e.prefDays = :prefDays,
+            d.departmentName = :departmentName
+        WHERE e.employeeID = :id;
+    """)
+    with engine.begin() as con:
+        result = con.execute(query, {
+            "name": name,
+            "email": email,
+            "id": id,
+            "departmentName": departmentName,
+            "prefDays": prefDays
+        })

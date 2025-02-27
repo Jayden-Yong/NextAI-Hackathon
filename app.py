@@ -5,7 +5,7 @@ from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
-from current_user_details import get_user_details
+from current_user_details import get_user_details,get_user_data_df
 from dynamic_desk_allocation import main_allocate_task
 from sqlalchemy import text
 import analytics_graphs
@@ -18,7 +18,7 @@ import database as db
 import bcrypt
 import os
 
-from database import connect_db
+from database import connect_db , employer_update_profile , employee_update_profile
 from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
@@ -144,6 +144,7 @@ def callback():
             'login-time': now.strftime("%H:%M:%S"),
             'data': data
         })
+        session["user_details"] = [data]
 
         return redirect(url_for('admin' if access == 0 else 'user'))
     else:
@@ -179,6 +180,7 @@ def verify_login():
                 'login-time': now.strftime("%H:%M:%S"),
                 'data': data
             })
+            session["user_details"] = [data]
 
             return redirect(url_for('admin' if access == 0 else 'user'))
             
@@ -195,6 +197,74 @@ def logout():
     session.clear()
     return redirect(url_for('home'))
 
+# employer settings
+@app.route('/employer_setting',methods = ['GET','POST'])
+def employer_setting():
+    employeesDB = db.load_employee_data()
+    current_user = get_user_data_df(get_user_details())
+    id = current_user['employeeID'].iloc[0]
+    details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
+    first_name = details['name'].split(' ')[0]
+    last_name = details['name'].split(' ')[1]
+    job = details['departmentName']
+    email = details['email']
+    return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id)
+
+@app.route('/update_employer_profile',methods = ['POST'])
+def update_employer_profile():
+    data = request.get_json()
+
+    name = f"{data.get('first_name')} {data.get('last_name')}"
+    email = data.get('email')
+    id = data.get('id')
+    departmentName = data.get('department_name')
+
+    current_user = get_user_data_df(get_user_details())
+    old_id = current_user['employeeID'].iloc[0]
+
+    current_user['employeeID'] = id
+    session['user_details'] = [current_user.to_dict(orient="records")[0]]
+    session.modified = True
+    try:
+        employer_update_profile(name=name,email=email,id=id,departmentName=departmentName,old_id = old_id)
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+
+# employee settings
+@app.route('/employee_setting' ,methods = ['GET','POST'])
+def employee_setting():
+    employeesDB = db.load_employee_data()
+    current_user = get_user_data_df(get_user_details())
+    id = current_user['employeeID'].iloc[0]
+    details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
+    first_name = details['name'].split(' ')[0]
+    last_name = details['name'].split(' ')[1]
+    job = details['departmentName']
+    email = details['email']
+    prefDays = details['prefDays']
+    return render_template('employee_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays )
+
+@app.route('/update_employee_profile',methods = ['POST'])
+def update_employee_profile():
+    data = request.get_json()
+
+    name = f"{data.get('first_name')} {data.get('last_name')}"
+    email = data.get('email')
+    id = data.get('id')
+    departmentName = data.get('department_name')
+    prefDays = data.get('prefDays')
+
+    current_user = get_user_data_df(get_user_details())
+
+    current_user['prefDays'] = prefDays
+    session['user_details'] = [current_user.to_dict(orient="records")[0]]
+    session.modified = True
+    try:
+        employee_update_profile(name=name ,email=email ,id=id ,departmentName=departmentName ,prefDays = prefDays)
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/book_desk')
 @login_required
