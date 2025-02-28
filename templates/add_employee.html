@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+<div class="banner">
+    <div class="container">
+        <div class="banner-content poppins-semibold display-5"><span>ADD EMPLOYEE</span></div>
+    </div>
+</div>
+
+<section class="container">
+    <div class="general-msg d-flex align-items-center gap-3">
+        <i class="bi bi-stars fsm"></i>
+        <span class="poppins-semibold">Fill in the required information below and leave the rest to us.</span>
+    </div>
+</section>
+
+<section class="container">
+    <form action="{{ url_for('add_employee_logic') }}" method="POST" onsubmit="return validation()">
+        <div class="form-box">
+            <span class="display-6 poppins-bold">EMPLOYEE ACCOUNT</span>
+
+            <div class="row gy-4 mt-1">
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">EMPLOYEE ID</label>
+                    <input id="id-input" name="id" type="text" class="standard-input d-block poppins-medium">
+                    <span id="idError" class="error-message poppins-semibold"></span>
+                </div>
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">PASSWORD</label>
+                    <input id="pw-input" name="password" type="password" class="standard-input d-block poppins-medium">
+                    <span id="passwordError" class="error-message poppins-semibold"></span>
+                </div>
+    
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">NAME OF EMPLOYEE</label>
+                    <input id="name-input" name="name" type="text" class="standard-input d-block poppins-medium">
+                    <span id="nameError" class="error-message poppins-semibold"></span>
+                </div>
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">DEPARTMENT ID</label>
+                    <select id="dept-input" name="deptID" class="form-select standard-input d-block poppins-medium">
+                        <option value="" disabled selected>Select department</option>
+                        {% for dept in depts %}
+                            <option value="{{ dept.departmentID }}">{{ dept.departmentID }} - {{ dept.departmentName }}</option>
+                        {% endfor %}
+                    </select>
+                    <span id="deptError" class="error-message poppins-semibold"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button class="submit-btn d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-cloud-arrow-up fmd"></i>
+                <span class="poppins-semibold">SAVE</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+<script id="id_json" type="application/json">{{ id_json | safe }}</script>
+{% endblock %}
+
+{% block jsimports %}
+<script src="{{ url_for('static', filename='js/add_employee.js') }}"></script>
+{% endblock %}

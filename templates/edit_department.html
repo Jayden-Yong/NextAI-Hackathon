@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Department{% endblock %}
+
+{% block content %}
+<div class="banner">
+    <div class="container">
+        <div class="banner-content poppins-semibold display-5"><span>EDIT DEPARTMENT</span></div>
+    </div>
+</div>
+
+<section class="container">
+    <form action="{{ url_for('update_department_logic') }}" method="POST" onsubmit="return validation()">
+        <input name="oldID" type="text" class="d-none" value="{{ deptData['departmentID'] }}">
+        <div class="form-box">
+            <span class="display-6 poppins-bold">DEPARTMENT INFORMATION</span>
+            
+            <div class="row gy-4 mt-1">
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">DEPARTMENT ID</label>
+                    <input id="id-input" name="id" type="text" class="standard-input d-block poppins-medium" value="{{ deptData['departmentID'] }}">
+                    <span id="idError" class="error-message poppins-semibold"></span>
+                </div>
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">DEPARTMENT NAME</label>
+                    <input id="name-input" name="name" type="text" class="standard-input d-block poppins-medium" value="{{ deptData['departmentName'] }}">
+                    <span id="nameError" class="error-message poppins-semibold"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button class="submit-btn d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-cloud-arrow-up fmd"></i>
+                <span class="poppins-semibold">SAVE</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+<script id="deptDB_json" type="application/json">{{ deptDB | tojson }}</script>
+<script id="deptData_json" type="application/json">{{ deptData | tojson }}</script>
+{% endblock %}
+
+{% block jsimports %}
+<script src="{{ url_for('static', filename='js/edit_department.js') }}"></script>
+{% endblock %}

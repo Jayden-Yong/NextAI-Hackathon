@@ -21,7 +21,6 @@
     --theme-2: #cfdaf0;
     --theme-3: #4A4DE7;
     --theme-4: #6466e0;
-    --theme-4: #6466e0;
 
     --font-size-xs: 0.75rem; 
     --font-size-sm: 0.875rem;
@@ -40,6 +39,8 @@
 .theme-1{color: var(--theme-1);}
 .theme-3{color: var(--theme-3);}
 .theme-4{color: var(--theme-4);}
+
+.muted{color: grey;}
 
 /* Responsive typography using Bootstrap breakpoints */
 @media (min-width: 576px) {
@@ -157,18 +158,89 @@ table tr td:last-child{
     background-color: rgb(255,0,0);
 }
 
-.submit-btn{
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    background-color: rgb(108, 234, 108);
-    transition: box-shadow 0.3s ease;
+/** System form designs **/
+.standard-input{
+    background-color: #b4cbf8;
+    border: solid 0.1rem var(--theme-4);
+    border-radius: 0.6rem;
+    padding: 0.6rem;
+    width: 100%;
 }
 
-.submit-btn:hover{
+.standard-input:focus{
+    box-shadow: 
+        0 0 4px rgba(0, 149, 255, 0.5),   /* Outer */
+        0 0 8px rgba(0, 149, 255, 0.4),   /* Middle*/
+        0 0 12px rgba(0, 149, 255, 0.3),  /* Inner */
+        0 0 16px rgba(0, 149, 255, 0.2);   
+}
+
+
+/** System button designs **/
+.standard-btn, .submit-btn, .warning-btn{
+    padding: 0.6rem 1.6rem;
+    border-radius: 50px;
+    border: solid 0.1rem rgb(0, 149, 255);
+    transition: box-shadow 0.3s ease;
+    background-color: rgb(177, 222, 255);
+    color: rgb(0, 149, 255);
+}
+
+.submit-btn{
+    border-color: #000;
+    background-color: rgb(108, 234, 108);
+    color: #000;
+}
+
+.warning-btn{
+    border-color: rgb(255,0,0);
+    background-color: rgb(249, 203, 203);
+    color: rgb(255,0,0);
+}
+
+.warning-btn:hover{
+    box-shadow: 
+        0 0 4px rgba(255, 0, 0, 0.5),   /* Outer */
+        0 0 8px rgba(255, 0, 0, 0.4),   /* Middle*/
+        0 0 12px rgba(255, 0, 0, 0.3),  /* Inner */
+        0 0 16px rgba(255, 0, 0, 0.2);
+}
+
+.standard-btn:hover, .submit-btn:hover{
     box-shadow:
         0 2px 4px rgba(0, 0, 0, 0.1),
-        0 4px 8px rgba(0, 0, 0, 0.1),
         0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+/** System message designs **/
+.general-msg, .success-msg{
+    border-radius: 1.4rem;
+    border: solid 0.1rem var(--theme-3);
+    background-color: var(--theme-2);
+    color: var(--theme-3);
+    padding: 0.6rem 1.2rem;
+}
+
+.success-msg{
+    background-color: rgb(187, 241, 187);
+    color: rgb(12, 173, 0);
+    border-color: rgb(12, 173, 0);
+}
+
+/** System modal design **/
+.modal-content{
+    border: solid 0.2rem var(--theme-3);
+    border-radius: 1.4rem;
+    background-color: var(--theme-2);
+    box-shadow: 
+        0 0 10px rgba(74,77,231, 0.5),   /* Outer */
+        0 0 20px rgba(74,77,231, 0.4),   /* Middle*/
+        0 0 30px rgba(74,77,231, 0.3),  /* Inner */
+        0 0 40px rgba(74,77,231, 0.2);
+}
+
+.modal-header,.modal-body,.modal-footer{
+    border: none;
 }
 
 /** Adjustments for Google Icons **/
@@ -650,6 +722,18 @@ body{
     mask: radial-gradient(circle at top left, white, transparent);
 }
 
+/* EMPLOYEE ADDER */
+.form-box{
+    border: solid 0.1rem var(--theme-3);
+    border-radius: 1.4rem;
+    background-color: var(--theme-2);
+    padding: 1.5rem 2rem 2rem 2rem;
+}
+
+
+
+
+
 /* ----- EMPLOYEE PAGES -----*/
 /* BOOKING */
 .booking-widget{
@@ -705,10 +789,3 @@ body{
     user-select: none;
 }
 
-.success-msg{
-    padding: 1rem 2rem;
-    background-color: rgb(187, 241, 187);
-    color: rgb(12, 173, 0);
-    border-radius: 1.4rem;
-    border: solid 0.1rem rgb(12, 173, 0);
-}

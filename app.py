@@ -74,7 +74,55 @@ def desk_manager():
 @login_required
 def employee_manager():
     employeeDB = db.load_employee_data().to_dict('records')
-    return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path)
+    message = request.args.get('message','')
+    return render_template('employee_manager.html', employeeDB=employeeDB, current_url=request.path, message=message)
+
+@app.route('/add_employee')
+@login_required
+def add_employee():
+    depts = db.get_departments()
+    id_list = db.get_employeeIDs()
+    return render_template('add_employee.html',current_url=request.path, depts=depts, id_json=id_list)
+
+@app.route('/delete_employee/<string:employeeID>', methods=["GET","POST"])
+@login_required
+def delete_employee(employeeID):
+    db.delete_employee(employeeID)
+    message = f"Employee {employeeID} has been deleted successfully."
+    return redirect(url_for('employee_manager', message=message))
+
+@app.route('/edit_employee/<string:employee_id>', methods=["GET","POST"])
+@login_required
+def edit_employee(employee_id):
+    employeeData = db.find_employee(employee_id)
+    accData = db.find_account(employee_id)
+    access = accData[0]['access']
+    depts = db.get_departments()
+    id_list = db.get_employeeIDs()
+    return render_template('edit_employee.html', current_url=request.path, depts=depts, employeeData=employeeData[0], access=access, id_json=id_list)
+
+
+@app.route('/add_department')
+@login_required
+def add_department():
+    deptDB = db.get_departments()
+    message = request.args.get('message','')
+    return render_template('add_department.html', current_url=request.path, deptDB=deptDB, message=message)
+
+@app.route('/delete_department/<string:deptID>', methods=["GET","POST"])
+@login_required
+def delete_department(deptID):
+    db.delete_department(deptID)
+    message = f"Department {deptID} has been deleted successfully."
+    return redirect(url_for('add_department', message=message))
+
+@app.route('/edit_department/<string:deptID>', methods=["GET","POST"])
+@login_required
+def edit_department(deptID):
+    deptData = db.find_department(deptID)
+    deptDB = db.get_departments()
+    return render_template('edit_department.html', current_url=request.path, deptDB=deptDB, deptData=deptData[0])
+
 
 @app.route('/employer_analytics')
 @login_required
@@ -85,13 +133,6 @@ def employer_analytics():
 @login_required
 def employee_analytics():
     return render_template('employee_analytics.html',current_url=request.path)
-
-@app.route('/edit_employee/<string:employee_id>')
-@login_required
-def edit_employee(employee_id):
-    employeesDB = db.load_employee_data()
-    details = employeesDB.loc[employeesDB['employeeID'] == employee_id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
-    return render_template('edit_employee.html', details=details)
 
 @app.route('/ai_assistant')
 def ai_assistant():
@@ -341,6 +382,66 @@ def meeting_booking_logic():
 
     message = f"Your reservation for meeting room {deskID} on {target_start} for {duration} hours has been confirmed."
     return redirect(url_for('book_meeting', message=message))
+
+
+@app.route('/add_employee_logic', methods=["POST"])
+@login_required
+def add_employee_logic():
+    newID = request.form['id']
+    password = request.form['password']
+    name = request.form['name']
+    deptID = request.form['deptID']
+
+    # Hash the password with bcrypt
+    Hpassword = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    # Execute queries to add employee to database
+    db.add_employee(newID,name,deptID)
+    db.add_account(Hpassword,newID)
+
+    message = "New employee has been added successfully."
+    return redirect(url_for('employee_manager', message=message))
+
+@app.route('/update_employee_logic', methods=["POST"])
+@login_required
+def update_employee_logic():
+    oldID = request.form['oldID']
+    id = request.form['id']
+    name = request.form['name']
+    deptID = request.form['deptID']
+    if 'prefDays' in request.form:
+        prefDays = request.form['prefDays']
+    else:
+        prefDays = None
+
+    db.update_employee(oldID,id,name,deptID,prefDays)
+
+    message = f"Account data for {oldID} was updated."
+    return redirect(url_for('employee_manager', message=message))
+
+
+@app.route('/add_department_logic', methods=["POST"])
+@login_required
+def add_department_logic():
+    deptID = request.form['id']
+    name = request.form['name']
+
+    db.add_department(deptID,name)
+
+    message = f"Department {deptID} was created successfully."
+    return redirect(url_for('add_department', message=message))
+
+@app.route('/update_department_logic', methods=["POST"])
+@login_required
+def update_department_logic():
+    oldID = request.form['oldID']
+    id = request.form['id']
+    name = request.form['name']
+
+    db.update_department(oldID,id,name)
+
+    message = f"Department data for {oldID} was updated."
+    return redirect(url_for('add_department', message=message))
 
 
 @app.route('/allocate-desk', methods=['POST'])
