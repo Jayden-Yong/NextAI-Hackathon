@@ -46,10 +46,6 @@
                         <i class="bi bi-people"></i>
                         <span class="poppins-semibold">Employees</span>
                     </a>
-                    <a href="{{url_for('employer_analytics')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('employer_analytics') %}nav-active{% endif %}">
-                        <i class="bi bi-graph-up"></i>
-                        <span class="poppins-semibold">Analytics</span>
-                    </a>
                     <a href="{{url_for('ai_assistant')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('ai_assistant') %}nav-active{% endif %}" >
                         <i class="bi bi-stars"></i>
                         <span class="poppins-semibold">Ai Assistant</span>
@@ -83,10 +79,6 @@
                         <i class="bi bi-people"></i>
                         <span class="poppins-semibold">Meeting Rooms</span>
                     </a>
-                    <a href="{{url_for('employee_analytics')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('employee_analytics') %}nav-active{% endif %}">
-                        <i class="bi bi-graph-up"></i>
-                        <span class="poppins-semibold">Analytics</span>
-                    </a>
                     <a href="{{url_for('ai_assistant')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('ai_assistant') %}nav-active{% endif %}" >
                         <i class="bi bi-stars"></i>
                         <span class="poppins-semibold">Ai Assistant</span>
@@ -106,10 +98,18 @@
                         <div id="profileMenu" class="dropdown-menu dropdown-content mt-2">
                             <span class="d-block poppins-bold fxs">{{ session['data']['name'] }}</span>
                             <div class="mt-2">
-                                <a href="#">
-                                    <i class="bi bi-gear"></i>
-                                    <span class="poppins-medium">Account Settings</span>
-                                </a>
+                                <!-- settings for employer -->
+                                {% if session['access'] == 0 %}
+                                    <a href="{{ url_for('employer_setting')}}">
+                                        <i class="bi bi-gear"></i>
+                                        <span class="poppins-medium">Account Settings</span>
+                                    </a>
+                                {% else%}
+                                    <a href="{{ url_for('employee_setting')}}">
+                                        <i class="bi bi-gear"></i>
+                                        <span class="poppins-medium">Account Settings</span>
+                                    </a>
+                                {% endif %}
                                 <a class="logout-btn" href="{{ url_for('logout') }}">
                                     <i class="bi bi-box-arrow-right"></i>
                                     <span class="poppins-medium">Log Out</span>

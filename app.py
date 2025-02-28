@@ -5,8 +5,7 @@ from functools import wraps
 from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
-from current_user_details import get_user_details
-from dynamic_desk_allocation import main_allocate_task
+from current_user_details import get_user_details,get_user_data_df
 from sqlalchemy import text
 import analytics_graphs
 import google.auth.transport.requests
@@ -15,10 +14,11 @@ import requests
 import json
 import pandas as pd
 import database as db
+from flask_bcrypt import Bcrypt
 import bcrypt
 import os
 
-from database import connect_db
+from database import connect_db , employer_update_profile , employee_update_profile , load_accounts
 from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
@@ -185,6 +185,7 @@ def callback():
             'login-time': now.strftime("%H:%M:%S"),
             'data': data
         })
+        session["user_details"] = [data]
 
         return redirect(url_for('admin' if access == 0 else 'user'))
     else:
@@ -220,6 +221,7 @@ def verify_login():
                 'login-time': now.strftime("%H:%M:%S"),
                 'data': data
             })
+            session["user_details"] = [data]
 
             return redirect(url_for('admin' if access == 0 else 'user'))
             
@@ -235,6 +237,126 @@ def verify_login():
 def logout():
     session.clear()
     return redirect(url_for('home'))
+
+# employer settings
+@app.route('/employer_setting',methods = ['GET','POST'])
+def employer_setting():
+    employeesDB = db.load_employee_data()
+    current_user = get_user_data_df(get_user_details())
+    id = current_user['employeeID'].iloc[0]
+    details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
+    splitted_name = details['name'].split(' ')
+    if len(splitted_name)<=1:
+        first_name = splitted_name[0]
+        last_name = ""
+    else:
+        first_name = splitted_name[0]
+        splitted_name.pop(0)
+        last_name = ' '.join(splitted_name)
+    
+    job = details['departmentName']
+    email = details['email']
+    return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id)
+
+@app.route('/update_employer_profile',methods = ['POST'])
+def update_employer_profile():
+    data = request.get_json()
+
+    name = f"{data.get('first_name')} {data.get('last_name')}"
+    email = data.get('email')
+    id = data.get('id')
+    departmentName = data.get('department_name')
+
+    current_user = get_user_data_df(get_user_details())
+    old_id = current_user['employeeID'].iloc[0]
+
+    current_user['employeeID'] = id
+    session['data']['name'] = name
+    session['user_details'] = [current_user.to_dict(orient="records")[0]]
+    session.modified = True
+    try:
+        employer_update_profile(name=name,email=email,id=id,departmentName=departmentName,old_id = old_id)
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+
+# employee settings
+@app.route('/employee_setting' ,methods = ['GET','POST'])
+def employee_setting():
+    employeesDB = db.load_employee_data()
+    current_user = get_user_data_df(get_user_details())
+    id = current_user['employeeID'].iloc[0]
+    details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
+    splitted_name = details['name'].split(' ')
+    if len(splitted_name)<=1:
+        first_name = splitted_name[0]
+        last_name = ""
+    else:
+        first_name = splitted_name[0]
+        splitted_name.pop(0)
+        last_name = ' '.join(splitted_name)
+    
+    
+    job = details['departmentName']
+    email = details['email']
+    prefDays = details['prefDays']
+    return render_template('employee_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays )
+
+@app.route('/update_employee_profile',methods = ['POST'])
+def update_employee_profile():
+    data = request.get_json()
+
+    name = f"{data.get('first_name')} {data.get('last_name')}"
+    email = data.get('email')
+    id = data.get('id')
+    departmentName = data.get('department_name')
+    prefDays = data.get('prefDays')
+
+    current_user = get_user_data_df(get_user_details())
+
+    current_user['prefDays'] = prefDays
+    session['data']['name'] = name
+    session['user_details'] = [current_user.to_dict(orient="records")[0]]
+    session.modified = True
+    try:
+        employee_update_profile(name=name ,email=email ,id=id ,departmentName=departmentName ,prefDays = prefDays)
+        return jsonify({"success": True, "message": "Profile updated successfully!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+
+# account password changing route
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    bcrypt = Bcrypt()
+    data = request.get_json()
+    new_password = data.get('new_password')
+
+    if not new_password:
+        return jsonify({"success": False, "error": "New password not provided."}), 400
+
+    import re
+    if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$', new_password):
+        return jsonify({"success": False, "error": "Password is too weak."}), 400
+
+    current = session.get('data')
+    current_id = current['employeeID']
+
+    hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    
+    engine = connect_db()
+    query = text("""
+        UPDATE accounts
+        SET password_hash = :password
+        WHERE employeeID = :id;
+    """)
+    with engine.begin() as con:
+        con.execute(query, {
+            "password": hashed_pw,
+            "id": current_id
+        })
+
+    return jsonify({"success": True, "message": "Password changed successfully!"})
 
 
 @app.route('/book_desk')
@@ -444,10 +566,6 @@ def update_department_logic():
     return redirect(url_for('add_department', message=message))
 
 
-@app.route('/allocate-desk', methods=['POST'])
-def allocate_desk():
-    main_allocate_task()
-
 @app.route('/save_layout', methods=['POST'])
 @login_required
 def save_layout():
@@ -544,3 +662,15 @@ def comparison_of_booking_patterns_with_peers_graph():
 if __name__ == '__main__':
     # Runs the app in debug mode
     app.run(debug=True,port=5000)
+
+# analytics page route ,can delete in final version(scared need to use back later)
+
+# @app.route('/employer_analytics')
+# @login_required
+# def employer_analytics():
+#     return render_template('employer_analytics.html',current_url=request.path)
+
+# @app.route('/employee_analytics')
+# @login_required
+# def employee_analytics():
+#     return render_template('employee_analytics.html',current_url=request.path)

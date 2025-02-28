@@ -10,7 +10,12 @@ from database import load_allData
 from current_user_details import get_user_data_df
 from datetime import datetime
 
-employees,desks,booking,department = load_allData()
+employees,desks,bookings,department,bookmeeting = load_allData()
+bookmeeting.rename(columns={'startTime':'date'},inplace=True)
+bookmeeting.drop(columns='endTime',inplace=True)
+booking = pd.concat([bookings,bookmeeting],axis=0)
+
+
 
 plot_lock = threading.Lock()
 
@@ -32,13 +37,14 @@ def daily_desk_utilization():
     with plot_lock:
         sns.set_style('darkgrid')
         fig, ax = plt.subplots()
-        sns.lineplot(x=res.index, y='Utilization (%)', data=res, marker='o', ax=ax,palette='icefire',hue=res.index)
+        sns.lineplot(x=res.index, y='Utilization (%)', data=res, marker='o', ax=ax,palette='icefire',hue=res.index,legend=False)
         ax.set_title(f'Daily Desk Utilization ({current_year}/{current_month})')
         ax.set_xlabel('Date')
         ax.set_ylabel('Utilization (%)')
         ax.set_ylim(0, 100)
         ax.tick_params(axis='x', labelsize=6) 
         plt.xticks(rotation = 90)
+        plt.tight_layout()
         
 
         # Save the plot to a BytesIO object
@@ -77,6 +83,7 @@ def department_booking_distribution():
         ax.tick_params(axis='x', labelsize=8) 
         ax.set_ylim(0, max_value + 5)
         plt.xticks(rotation = 90)
+        plt.tight_layout()
         # Save the plot to a BytesIO object
         img = io.BytesIO()
         fig.savefig(img, format='png')
@@ -98,6 +105,7 @@ def employees_attendance_trend():
     # Resample the data by month using the valid alias 'M' (month end)
     monthly_counts = res.resample('ME', on='date').size().reset_index()
     monthly_counts.columns = ['month', 'bookings']
+    print(monthly_counts)
     with plot_lock:
         sns.set_style('darkgrid')
         plot = (
@@ -112,6 +120,7 @@ def employees_attendance_trend():
         img = io.BytesIO()
         plot.show()  # Display the plot to apply xticks before saving
         plt.xticks(rotation=90)  # Rotate x-axis labels
+        plt.tight_layout()
         plt.savefig(img, format='png', bbox_inches='tight')  # Save with adjusted labels
         plt.close('all')
         img.seek(0)
@@ -207,6 +216,7 @@ def weekly_peak_office_usage():
         ordered=True
     )
     weekly_bookings = weekly_bookings.sort_values('date')
+    # print(weekly_bookings)
 
     # Create Doughnut Chart
     with plot_lock:
@@ -264,6 +274,8 @@ def personal_desk_booking_history(user_details):
         ax.set_title(f'Personal Desk Booking History ({current_year})')
         ax.set_xlabel('Date')
         ax.set_ylabel('Counts')
+        plt.xticks(rotation = 90)
+        plt.tight_layout()
 
         img = io.BytesIO()
         fig.savefig(img, format='png')

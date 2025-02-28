@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}AdminHub{% endblock %}
-
-
+{% block title %}UserHub{% endblock %}
 
 {% block content %}
 <section>
@@ -46,4 +44,83 @@
         </div>
     </div>    
 </section>
+<section class="container mt-5">
+    <h1 class="text-center mb-5 poppins-bold">Workspace Analytics</h1>
+
+    <div class="row">
+        <!-- Desk Utilization -->
+        <div class="col-md-6 mb-4">
+            <div class="card graph-fade-in" style="width: 40rem; height: 40rem;">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                </div>
+                <img class="card-img-top img-fluid lazy-load" 
+                    data-src="/personal_desk_booking_history_graph" 
+                    alt="Personal Desk Booking History Graph " 
+                    style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Displays your past bookings over time.</p>
+                    <p class="card-text poppins-semibold">Helps track your office attendance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Attendance Trend -->
+        <div class="col-md-6 mb-4">
+            <div class="card graph-fade-in" style="width: 40rem; height: 40rem;">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                </div>
+                <img class="card-img-top img-fluid lazy-load" 
+                    data-src="/preferred_desk_usage_frequency_graph" 
+                    alt="Preferred Desk Usage Frequency Graph " 
+                    style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Shows which desks you book most often.</p>
+                    <p class="card-text poppins-semibold">Helps you determine desks that match your preferences.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desk Availability Status -->
+        <div class="col-md-6 mb-4">
+            <div class="card graph-fade-in" style="width: 40rem; height: 40rem;">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                </div>
+                <img class="card-img-top img-fluid lazy-load" 
+                    data-src="/average_monthly_attendance_graph" 
+                    alt="Average Monthly Attendance Graph " 
+                    style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Shows the percentage of office vs. remote work days.</p>
+                    <p class="card-text poppins-semibold">Helps you balance your hybrid schedule.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Peak Office Usage -->
+        <div class="col-md-6 mb-4">
+            <div class="card graph-fade-in" style="width: 40rem; height: 40rem;">
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                </div>
+                <img class="card-img-top img-fluid lazy-load" 
+                    data-src="/comparison_of_booking_patterns_with_peers_graph" 
+                    alt="Comparison of Booking Pattern With Peers Graph " 
+                    style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Compares your booking habits with your department/team.</p>
+                    <p class="card-text poppins-semibold">Provides insights into hybrid work preferences among colleagues.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block jsimports %}
+<script src="{{url_for('static', filename = 'js/loading.js')}}"></script>
 {% endblock %}
