@@ -134,16 +134,6 @@ def edit_department(deptID):
     return render_template('edit_department.html', current_url=request.path, deptDB=deptDB, deptData=deptData[0])
 
 
-@app.route('/employer_analytics')
-@login_required
-def employer_analytics():
-    return render_template('employer_analytics.html',current_url=request.path)
-
-@app.route('/employee_analytics')
-@login_required
-def employee_analytics():
-    return render_template('employee_analytics.html',current_url=request.path)
-
 @app.route('/ai_assistant')
 def ai_assistant():
     return render_template('ai_assistant.html',current_url=request.path)
