@@ -1,4 +1,4 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response, send_file
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 from datetime import datetime, timedelta
 from functools import wraps
@@ -697,59 +697,90 @@ def save_layout():
 # route for employer analytics page
 @app.route('/desk_utilization_graph')
 def desk_utilization_graph():
-    img0 = analytics_graphs.daily_desk_utilization()
-    return Response(img0, mimetype='image/png')
+    try:
+        img0 = analytics_graphs.daily_desk_utilization()
+        return Response(img0, mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
+    
 
 @app.route('/department_booking_distribution_graph')
 def department_booking_distribution_graph():
-    img1 = analytics_graphs.department_booking_distribution()
-    return Response(img1, mimetype='image/png')
+    try: 
+        img1 = analytics_graphs.department_booking_distribution()
+        return Response(img1, mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/employees_attendance_trend_graph')
 def employees_attendance_trend_graph():
-    img2 = analytics_graphs.employees_attendance_trend()
-    return Response(img2 ,mimetype='image/png')
+    try:
+        img2 = analytics_graphs.employees_attendance_trend()
+        return Response(img2 ,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
+
 
 @app.route('/desk_availability_status_graph')
 def desk_availability_status_graph():
-    img3 = analytics_graphs.desk_availability_status()
-    return Response(img3,mimetype='image/png')
+    try:
+        img3 = analytics_graphs.desk_availability_status()
+        return Response(img3,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/preferred_days_by_employees_graph')
 def preferred_days_by_employees_graph():
-    img4 = analytics_graphs.preferred_days_by_employees()
-    return Response(img4,mimetype='image/png')
+    try:
+        img4 = analytics_graphs.preferred_days_by_employees()
+        return Response(img4,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/weekly_peak_office_usage_graph')
 def weekly_peak_office_usage_graph():
-    img5 = analytics_graphs.weekly_peak_office_usage()
-    return Response(img5,mimetype='image/png')
+    try:
+        img5 = analytics_graphs.weekly_peak_office_usage()
+        return Response(img5,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 # route for employee analytics graph
 @app.route('/personal_desk_booking_history_graph')
 def personal_desk_booking_history_graph():
-    user_details = get_user_details()
-    img0 = analytics_graphs.personal_desk_booking_history(user_details)
-    return Response(img0,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img0 = analytics_graphs.personal_desk_booking_history(user_details)
+        return Response(img0,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/preferred_desk_usage_frequency_graph')
 def preferred_desk_usage_frequency_graph():
-    user_details = get_user_details()
-    img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
-    return Response(img1,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
+        return Response(img1,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/average_monthly_attendance_graph')
 def average_monthly_attendance_graph():
-    user_details = get_user_details()
-    img2 = analytics_graphs.average_monthly_attendance(user_details)
-    return Response(img2,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img2 = analytics_graphs.average_monthly_attendance(user_details)
+        return Response(img2,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/comparison_of_booking_patterns_with_peers_graph')
 def comparison_of_booking_patterns_with_peers_graph():
-    user_details = get_user_details()
-    img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
-    return Response(img3,mimetype='image/png')
-    
+    try:
+        user_details = get_user_details()
+        img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
+        return Response(img3,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 
 if __name__ == '__main__':

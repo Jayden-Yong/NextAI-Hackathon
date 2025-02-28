@@ -268,7 +268,7 @@ def current_user_upcoming_data_desk(employeeID):
 
     upcoming_booking = load_desk_bookings()
     upcoming_booking['date'] = pd.to_datetime(upcoming_booking['date'])
-    upcoming_booking = upcoming_booking.loc[(upcoming_booking['date'] > today) & (upcoming_booking['employeeID']==employeeID)]
+    upcoming_booking = upcoming_booking.loc[(upcoming_booking['date'] >= today) & (upcoming_booking['employeeID']==employeeID)]
     upcoming_booking.drop(columns = ['coordX','coordY'],inplace = True)
 
     return upcoming_booking
