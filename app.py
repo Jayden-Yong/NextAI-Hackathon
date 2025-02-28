@@ -124,13 +124,6 @@ def edit_department(deptID):
     return render_template('edit_department.html', current_url=request.path, deptDB=deptDB, deptData=deptData[0])
 
 
-@app.route('/edit_employee/<string:employee_id>')
-@login_required
-def edit_employee(employee_id):
-    employeesDB = db.load_employee_data()
-    details = employeesDB.loc[employeesDB['employeeID'] == employee_id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
-    return render_template('edit_employee.html', details=details)
-
 @app.route('/ai_assistant')
 def ai_assistant():
     return render_template('ai_assistant.html',current_url=request.path)
@@ -253,7 +246,7 @@ def employer_setting():
     
     job = details['departmentName']
     email = details['email']
-    return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id)
+    return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,current_url = request.path)
 
 @app.route('/update_employer_profile',methods = ['POST'])
 def update_employer_profile():
@@ -297,7 +290,7 @@ def employee_setting():
     job = details['departmentName']
     email = details['email']
     prefDays = details['prefDays']
-    return render_template('employee_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays )
+    return render_template('employee_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays , current_url = request.path)
 
 @app.route('/update_employee_profile',methods = ['POST'])
 def update_employee_profile():
@@ -501,66 +494,6 @@ def meeting_booking_logic():
 
     message = f"Your reservation for meeting room {deskID} on {target_start} for {duration} hours has been confirmed."
     return redirect(url_for('book_meeting', message=message))
-
-
-@app.route('/add_employee_logic', methods=["POST"])
-@login_required
-def add_employee_logic():
-    newID = request.form['id']
-    password = request.form['password']
-    name = request.form['name']
-    deptID = request.form['deptID']
-
-    # Hash the password with bcrypt
-    Hpassword = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-
-    # Execute queries to add employee to database
-    db.add_employee(newID,name,deptID)
-    db.add_account(Hpassword,newID)
-
-    message = "New employee has been added successfully."
-    return redirect(url_for('employee_manager', message=message))
-
-@app.route('/update_employee_logic', methods=["POST"])
-@login_required
-def update_employee_logic():
-    oldID = request.form['oldID']
-    id = request.form['id']
-    name = request.form['name']
-    deptID = request.form['deptID']
-    if 'prefDays' in request.form:
-        prefDays = request.form['prefDays']
-    else:
-        prefDays = None
-
-    db.update_employee(oldID,id,name,deptID,prefDays)
-
-    message = f"Account data for {oldID} was updated."
-    return redirect(url_for('employee_manager', message=message))
-
-
-@app.route('/add_department_logic', methods=["POST"])
-@login_required
-def add_department_logic():
-    deptID = request.form['id']
-    name = request.form['name']
-
-    db.add_department(deptID,name)
-
-    message = f"Department {deptID} was created successfully."
-    return redirect(url_for('add_department', message=message))
-
-@app.route('/update_department_logic', methods=["POST"])
-@login_required
-def update_department_logic():
-    oldID = request.form['oldID']
-    id = request.form['id']
-    name = request.form['name']
-
-    db.update_department(oldID,id,name)
-
-    message = f"Department data for {oldID} was updated."
-    return redirect(url_for('add_department', message=message))
 
 
 @app.route('/add_employee_logic', methods=["POST"])

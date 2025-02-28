@@ -25,6 +25,10 @@ Many startups face high overhead costs due to renting large office spaces, even 
 - **Vanna AI Integration:**  
   - An AI-powered SQL assistant (Vanna AI) that helps both employers and employees analyze data, ask questions about trends, and gain actionable insights from the workspace analytics.
 
+- **Account Settings:**
+  - Allows both employers and employees to change their personal information such as name , preference days to work in office
+  - Changing password is also available , where password is hashed via bcrpyt to protect user's account.
+
 ## Impact
 
 By using HybridHub, startup companies can:
@@ -56,3 +60,44 @@ By using HybridHub, startup companies can:
 
 - **Secure Authentication:**  
   Google login for streamlined and secure user access.
+
+
+# HybridHub Installation Guide
+
+## Step 1: Create a Virtual Environment
+Before installing dependencies, create and activate a virtual environment.
+
+### Windows
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### macOS/Linux
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+## Step 2: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+## Step 3: Set Up the Database
+Open MySQL Workbench.
+Copy and paste the SQL scripts from hybridhub.sql into the Workbench query editor.
+Execute the script to set up the database.
+
+## Step 4: Configure API Keys
+Go to the Vanna Website and get your API key and model name.
+Modify the config.py file in the project directory.
+Add your configuration for database and Vanna API key:
+
+## Step 5: Run the Application
+Run the following :
+```bash
+python app.py
+python vanna_ai.py
+```
+(Note : Please uncomment the vanna_train() in vanna_ai.py if u are first using this project)
+
+### Your HybridHub system should now be up and running! 🚀
