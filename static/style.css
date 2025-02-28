@@ -159,8 +159,21 @@ table tr td:last-child{
 }
 
 /** System form designs **/
+.form-box, .card{
+    border: solid 0.1rem var(--theme-3);
+    border-radius: 1.4rem;
+    background-color: var(--theme-2);
+    padding: 1.5rem 2rem 2rem 2rem;
+}
+
+.card{
+    border-radius: 0.8rem;
+    background-color: #ffffff;
+    padding: 0.3rem;
+}
+
 .standard-input{
-    background-color: #b4cbf8;
+    background-color: #c4d5f9;
     border: solid 0.1rem var(--theme-4);
     border-radius: 0.6rem;
     padding: 0.6rem;
@@ -177,7 +190,7 @@ table tr td:last-child{
 
 
 /** System button designs **/
-.standard-btn, .submit-btn, .warning-btn{
+.standard-btn, .submit-btn, .warning-btn, .google-bind-btn{
     padding: 0.6rem 1.6rem;
     border-radius: 50px;
     border: solid 0.1rem rgb(0, 149, 255);
@@ -196,6 +209,23 @@ table tr td:last-child{
     border-color: rgb(255,0,0);
     background-color: rgb(249, 203, 203);
     color: rgb(255,0,0);
+}
+
+.google-bind-btn{
+    border-color: var(--theme-3);
+    background-color: #f2f2f2;
+}
+
+.google-bind-btn img{
+    width: 1.2rem;
+}
+
+.google-bind-btn:hover{
+    box-shadow: 
+        0 0 4px rgba(74, 210, 231, 0.5),   /* Red outer glow */
+        0 0 8px rgba(74, 210, 231, 0.4), /* Orange middle glow */
+        0 0 12px rgba(74, 210, 231, 0.3), /* Yellow inner glow */
+        0 0 16px rgba(74,77,231, 0.2);;
 }
 
 .warning-btn:hover{
@@ -723,15 +753,6 @@ body{
 }
 
 /* EMPLOYEE ADDER */
-.form-box{
-    border: solid 0.1rem var(--theme-3);
-    border-radius: 1.4rem;
-    background-color: var(--theme-2);
-    padding: 1.5rem 2rem 2rem 2rem;
-}
-
-
-
 
 
 /* ----- EMPLOYEE PAGES -----*/

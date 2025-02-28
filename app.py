@@ -14,7 +14,6 @@ import requests
 import json
 import pandas as pd
 import database as db
-from flask_bcrypt import Bcrypt
 import bcrypt
 import os
 
@@ -27,6 +26,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
 app.secret_key = "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"
 
+# Google login
 GOOGLE_CLIENT_ID = "72353004136-v04m6s1m0g4r801sbofl5uqad6734b3e.apps.googleusercontent.com"
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 
@@ -34,6 +34,16 @@ flow = Flow.from_client_secrets_file(
     client_secrets_file=client_secrets_file,
     scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
     redirect_uri="http://127.0.0.1:5000/callback"
+)
+
+# Google binding
+GOOGLE_BIND_CLIENT_ID = "72353004136-d7d0ma8fomh233m84a61fhsc67sl6i4p.apps.googleusercontent.com"
+bind_secrets_file = os.path.join(pathlib.Path(__file__).parent, "bind_secret.json")
+
+bind_flow = Flow.from_client_secrets_file(
+    client_secrets_file=bind_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://127.0.0.1:5000/bind_callback"
 )
 
 # Decorator for page protection (@login_required)
@@ -156,6 +166,15 @@ def callback():
         abort(500)  # State does not match!
 
     credentials = flow.credentials
+    session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+
     request_session = requests.session()
     cached_session = cachecontrol.CacheControl(request_session)
     token_request = google.auth.transport.requests.Request(session=cached_session)
@@ -177,6 +196,7 @@ def callback():
         data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
         now = datetime.now()
         session.update({
+            'google': 'true',
             'access': access,
             'email': email,
             'picture': id_info.get("picture"),
@@ -189,31 +209,95 @@ def callback():
 
         return redirect(url_for('admin' if access == 0 else 'user'))
     else:
-            error = "Email not found"
+            error = "This email is not connected with us."
             return render_template('login.html', error = error)
+
+# Google Bind OAuth
+@app.route("/google_bind")
+def google_bind():
+    authorization_url, state = bind_flow.authorization_url()
+    session["state"] = state
+    return redirect(authorization_url)
+
+@app.route("/bind_callback")
+def bind_callback():
+    bind_flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)  # State does not match!
+
+    credentials = bind_flow.credentials
+    session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_BIND_CLIENT_ID
+    )
+
+    # Bind the Google account with employee ID
+    email = id_info.get("email")
+    db.bind_google(session['data']['employeeID'],email)
+
+    session.update({
+        'google': 'true',
+        'email': email,
+        'picture': id_info.get("picture")
+    })
+
+    return redirect(url_for('employee_setting' if session['access'] == 1 else 'employer_setting'))
+
+# Unbind Google
+@app.route('/unbind_google')
+@login_required
+def unbind_google():
+    # Set email to null for the current user in session
+    db.unbind_google(session['data']['employeeID'])
+
+    session.pop('picture', None)
+    session.update({
+        'google': 'false',
+        'email': session['data']['employeeID']
+    })
+
+    message = "Google account has been removed"
+
+    return redirect(url_for('employee_setting' if session['access'] == 1 else 'employer_setting', message=message))
 
 
 # Login verfication
 @app.route('/verify-login', methods=['POST'])
 def verify_login():
-    email = request.form['email']
+    email = request.form['id']
     password = request.form['password']
     
     accounts = db.load_accounts()
     employees = db.load_employees()
 
     # Check if the email exists
-    if email in accounts['email'].values:
-        stored_pw = accounts.loc[accounts['email'] == email,'password_hash'].values[0]
+    if email in accounts['email'].values or email in accounts['employeeID'].values:
+        stored_pw = accounts.loc[(accounts['email'] == email) | (accounts['employeeID'] == email),'password_hash'].values[0]
 
         # Check if the hashed passwords matches
         if bcrypt.checkpw(password.encode('utf-8'), stored_pw.encode('utf-8')):
 
             # Check user privilege
-            access = int(accounts.loc[accounts['email'] == email, 'access'].values[0])
-            data = employees.loc[employees['employeeID'] == accounts.loc[accounts['email'] == email, 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
+            access = int(accounts.loc[(accounts['email'] == email) | (accounts['employeeID'] == email), 'access'].values[0])
+            data = employees.loc[employees['employeeID'] == accounts.loc[(accounts['email'] == email) | (accounts['employeeID'] == email), 'employeeID'].values[0], ['employeeID', 'name', 'prefDays', 'departmentID']].to_dict('records')[0]
             now = datetime.now()
             session.update({
+                'google': 'false',
                 'access': access,
                 'email': email,
                 'date': now.strftime("%d %B %Y"),
@@ -235,6 +319,17 @@ def verify_login():
 
 @app.route('/logout')
 def logout():
+    # Revoke the Google OAuth token
+    if 'credentials' in session:
+        credentials = google.oauth2.credentials.Credentials(**session['credentials'])
+        revoke = requests.post('https://oauth2.googleapis.com/revoke',
+                               params={'token': credentials.token},
+                               headers={'content-type': 'application/x-www-form-urlencoded'})
+        if revoke.status_code == 200:
+            print("Token revoked successfully.")
+        else:
+            print("Failed to revoke token.")
+
     session.clear()
     return redirect(url_for('home'))
 
@@ -243,7 +338,7 @@ def logout():
 def employer_setting():
     employeesDB = db.load_employee_data()
     current_user = get_user_data_df(get_user_details())
-    id = current_user['employeeID'].iloc[0]
+    id = session['data']['employeeID']
     details = employeesDB.loc[employeesDB['employeeID'] == id, ['employeeID','email','name','prefDays','departmentName']].to_dict('records')[0]
     splitted_name = details['name'].split(' ')
     if len(splitted_name)<=1:
@@ -256,7 +351,9 @@ def employer_setting():
     
     job = details['departmentName']
     email = details['email']
-    return render_template('employer_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id)
+
+    message = request.args.get('message','')
+    return render_template('employer_setting.html',current_url = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id, message=message)
 
 @app.route('/update_employer_profile',methods = ['POST'])
 def update_employer_profile():
@@ -300,7 +397,9 @@ def employee_setting():
     job = details['departmentName']
     email = details['email']
     prefDays = details['prefDays']
-    return render_template('employee_setting.html',active_nav = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays )
+
+    message = request.args.get('message','')
+    return render_template('employee_setting.html',current_url = request.path ,job = job,email = email,first_name = first_name,last_name = last_name ,id = id,prefDays = prefDays, message=message )
 
 @app.route('/update_employee_profile',methods = ['POST'])
 def update_employee_profile():
@@ -328,7 +427,6 @@ def update_employee_profile():
 # account password changing route
 @app.route('/change_password', methods=['POST'])
 def change_password():
-    bcrypt = Bcrypt()
     data = request.get_json()
     new_password = data.get('new_password')
 

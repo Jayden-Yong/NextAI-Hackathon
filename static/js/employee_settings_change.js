@@ -43,4 +43,10 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("Error:", error));
     });
+
+    const myModal = new bootstrap.Modal(document.getElementById('warningModal'));
+
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+        myModal.show();
+    });
 });

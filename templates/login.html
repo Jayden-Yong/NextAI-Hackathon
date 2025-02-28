@@ -61,7 +61,7 @@
                 
                 <form action="{{ url_for('verify_login') }}" method="post" onsubmit="return validateForm()" style="width: 100%;">
                     <div class="mb-4">
-                        <input type="email" id="email" class="text-field poppins-semibold fxs" name="email" placeholder="Enter your email">
+                        <input type="text" id="email" class="text-field poppins-semibold fxs" name="id" placeholder="Enter your email or ID">
                         <div id="emailError" class="error-message poppins-semibold"></div>
                     </div>
                     
@@ -92,7 +92,7 @@
                 document.getElementById('passwordError').innerText = '';
     
                 if (userID === '') {
-                    document.getElementById('emailError').innerText = 'User ID is required';
+                    document.getElementById('emailError').innerText = 'User ID or email is required';
                     isValid = false;
                 }
     
