@@ -109,6 +109,91 @@ def book_meeting(employeeID,deskID,startTime,endTime):
         con.execute(query, {"id": employeeID, "deskID": deskID, "startTime": startTime, "endTime": endTime})
         con.commit()
 
+def get_departments():
+    con = connect_db()
+    query = "SELECT * FROM department"
+    depts = pd.read_sql(query, con).to_dict("records")
+    return depts
+
+def get_employeeIDs():
+    con = connect_db()
+    query = "SELECT employeeID from employee"
+    ids = pd.read_sql(query, con).to_json(orient="records")
+    return ids
+
+def add_employee(employeeID,name,departmentID):
+    engine = connect_db()
+    query = text("INSERT INTO employee (employeeID,name,departmentID) VALUES (:id,:name,:deptID)")
+    with engine.begin() as con:
+        con.execute(query, {"id": employeeID, "name": name, "deptID": departmentID})
+        con.commit()
+
+def add_account(hashed_password,employeeID):
+    engine = connect_db()
+    query = text("INSERT INTO accounts (password_hash,employeeID) VALUES (:pwHashed,:id)")
+    with engine.begin() as con:
+        con.execute(query, {"pwHashed": hashed_password, "id": employeeID})
+        con.commit()
+
+def delete_employee(employeeID):
+    engine = connect_db()
+    query = text("DELETE FROM employee WHERE employeeID = :employeeID")
+    with engine.begin() as con:
+        con.execute(query, {"employeeID": employeeID})
+        con.commit()
+
+def find_employee(employeeID):
+    con = connect_db()
+    query = f"SELECT * FROM employee WHERE employeeID = '{employeeID}'"
+    employeeData = pd.read_sql(query, con).to_dict('records')
+    return employeeData
+
+def find_account(employeeID):
+    con = connect_db()
+    query = f"SELECT * FROM accounts WHERE employeeID = '{employeeID}'"
+    accData = pd.read_sql(query, con).to_dict('records')
+    return accData
+
+def update_employee(oldID,employeeID,name,departmentID,prefDays):
+    engine = connect_db()
+    query = text("UPDATE employee SET employeeID = :employeeID, name = :name, departmentID = :deptID, prefDays = :prefDays WHERE employeeID = :oldID")
+    with engine.begin() as con:
+        con.execute(query, {"employeeID": employeeID, "name": name, "deptID": departmentID, "prefDays": prefDays, "oldID": oldID})
+        con.commit()
+
+def get_departments():
+    con = connect_db()
+    query = "SELECT * FROM department"
+    deptDB = pd.read_sql(query,con).to_dict("records")
+    return deptDB
+
+def add_department(deptID,name):
+    engine = connect_db()
+    query = text("INSERT INTO department (departmentID,departmentName) VALUES (:deptID,:name)")
+    with engine.begin() as con:
+        con.execute(query, {"deptID": deptID, "name": name})
+        con.commit()
+
+def delete_department(deptID):
+    engine = connect_db()
+    query = text("DELETE FROM department WHERE departmentID = :deptID")
+    with engine.begin() as con:
+        con.execute(query, {"deptID": deptID})
+        con.commit()
+
+def find_department(deptID):
+    con = connect_db()
+    query = f"SELECT * FROM department WHERE departmentID = '{deptID}'"
+    deptData = pd.read_sql(query, con).to_dict('records')
+    return deptData
+
+def update_department(oldID,deptID,name):
+    engine = connect_db()
+    query = text("UPDATE department SET departmentID = :deptID, departmentName = :name WHERE departmentID = :oldID")
+    with engine.begin() as con:
+        con.execute(query, {"deptID": deptID, "name": name, "oldID": oldID})
+        con.commit()
+
 def employer_update_profile(name , email , id , departmentName , old_id):
     engine = connect_db()
     query = text("""

@@ -1,26 +1,40 @@
 {% extends "base.html" %}
 
-{% block title %}Employee Manager{% endblock %}
+{% block title %}Manage Departments{% endblock %}
 
 {% block content %}
 <div class="banner">
     <div class="container">
-        <div class="banner-content poppins-semibold display-5"><span>EMPLOYEES</span></div>
+        <div class="banner-content poppins-semibold display-5"><span>MANAGE DEPARTMENTS</span></div>
     </div>
 </div>
 
 <section class="container">
-    <div class="d-flex align-items-center gap-3">
-        <a href="{{ url_for('add_employee') }}" class="standard-btn d-flex align-items-center justify-content-center gap-2">
-            <span class="material-symbols-outlined">person_add</span>
-            <span class="poppins-semibold">Add employee</span>
-        </a>
+    <form action="{{ url_for('add_department_logic') }}" method="POST" onsubmit="return validation()">
+        <div class="form-box">
+            <div class="d-flex align-items-center">
+                <span class="display-6 poppins-bold">NEW DEPARTMENT</span>
+                <button class="submit-btn d-flex align-items-center justify-content-center gap-2 ms-auto">
+                    <i class="bi bi-cloud-arrow-up fmd"></i>
+                    <span class="poppins-semibold">SAVE</span>
+                </button>
+            </div>
+            
 
-        <a href="{{ url_for('add_department') }}" class="standard-btn d-flex align-items-center justify-content-center gap-2">
-            <span class="material-symbols-outlined">domain_add</span>
-            <span class="poppins-semibold">Add department</span>
-        </a>
-    </div>
+            <div class="row gy-4 mt-1">
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">DEPARTMENT ID</label>
+                    <input id="id-input" name="id" type="text" class="standard-input d-block poppins-medium">
+                    <span id="idError" class="error-message poppins-semibold"></span>
+                </div>
+                <div class="col-6">
+                    <label for="" class="form-label poppins-bold">DEPARTMENT NAME</label>
+                    <input id="name-input" name="name" type="text" class="standard-input d-block poppins-medium">
+                    <span id="nameError" class="error-message poppins-semibold"></span>
+                </div>
+            </div>
+        </div>  
+    </form>
 </section>
 
 {% if message %}
@@ -37,24 +51,18 @@
         <table class="poppins-semibold">
             <thead>
                 <tr>
-                    <th>Employee ID</th>
-                    <th>Email</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Preferred In-Office Days</th>
+                    <th>Department ID</th>
+                    <th>Department Name</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                {% for employee in employeeDB %}
+                {% for dept in deptDB %}
                 <tr class="data-rows">
-                    <td>{{ employee.employeeID }}</td>
-                    <td>{{ employee.email }}</td>
-                    <td>{{ employee.name }}</td>
-                    <td>{{ employee.departmentName }}</td>
-                    <td>{{ employee.prefDays }}</td>
+                    <td>{{ dept.departmentID }}</td>
+                    <td>{{ dept.departmentName }}</td>
                     <td class="d-flex align-items-center justify-content-end gap-2">
-                        <a href="{{ url_for('edit_employee', employee_id = employee.employeeID) }}" class="edit-btn"><i class="bi bi-pencil-square"></i></a>
+                        <a href="{{ url_for('edit_department', deptID = dept.departmentID) }}" class="edit-btn"><i class="bi bi-pencil-square"></i></a>
                         <a type="button" class="delete-btn"><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
@@ -69,11 +77,11 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fsm poppins-bold" id="exampleModalLabel">DELETE EMPLOYEE</h1>
+                <h1 class="modal-title fsm poppins-bold" id="exampleModalLabel">DELETE DEPARTMENT</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body poppins-semibold">
-                Are you sure you want to delete this employee?
+                Are you sure you want to delete this department?
             </div>
             <div class="modal-footer">
                 <button type="button" class="warning-btn d-flex align-items-center justify-content-center gap-2" id="confirmDelete">
@@ -99,20 +107,26 @@
                 $('#warningModal').modal('show');
 
                 // Get the employee ID from the row
-                const employeeID = this.closest('tr').querySelector('td').textContent;
+                const deptID = this.closest('tr').querySelector('td').textContent;
 
                 // Set the employee ID to the confirm delete button
-                document.getElementById('confirmDelete').setAttribute('data-employee-id', employeeID);
+                document.getElementById('confirmDelete').setAttribute('data-dept-id', deptID);
             });
         });
 
         // Add click event listener to the confirm delete button
         document.getElementById('confirmDelete').addEventListener('click', function() {
-            const employeeID = this.getAttribute('data-employee-id');
+            const deptID = this.getAttribute('data-dept-id');
 
             // Redirect to the delete route with the employee ID
-            window.location.href = `/delete_employee/${employeeID}`;
+            window.location.href = `/delete_department/${deptID}`;
         });
     });
 </script>
+
+<script id="deptDB_json" type="application/json">{{ deptDB | tojson }}</script>
+{% endblock %}
+
+{% block jsimports %}
+<script src="{{ url_for('static', filename='js/add_department.js') }}"></script>
 {% endblock %}
