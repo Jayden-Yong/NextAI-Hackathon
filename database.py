@@ -235,3 +235,17 @@ def employee_update_profile(name , email , id , departmentName , prefDays):
             "departmentName": departmentName,
             "prefDays": prefDays
         })
+
+def bind_google(employeeID,email):
+    engine = connect_db()
+    query = text("UPDATE accounts SET email = :email WHERE employeeID = :id")
+    with engine.begin() as con:
+        con.execute(query, {"email": email, "id": employeeID})
+        con.commit()
+
+def unbind_google(employeeID):
+    engine = connect_db()
+    query = text("UPDATE accounts SET email = '' WHERE employeeID = :id")
+    with engine.begin() as con:
+        con.execute(query, {"id": employeeID})
+        con.commit()

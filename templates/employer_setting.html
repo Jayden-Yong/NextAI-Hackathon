@@ -2,13 +2,22 @@
 
 {% block content %}
 <div class="container">
-  <div class="d-flex align-items-center justify-content-center gap-3 mt-5">
+  <div class="d-flex align-items-center justify-content-center gap-3">
     <section class="container my-5">
       <!-- Page Title -->
-      <h3 class="mb-4 fw-bold">My Profile</h4>
+      <h3 class="mb-4 poppins-bold">MY PROFILE</h4>
+
+        {% if message %}
+        <section>
+            <div class="success-msg d-flex align-items-center gap-3">
+                <i class="bi bi-check-circle fmd"></i>
+                <span class="poppins-semibold">{{ message }}</span>
+            </div>
+        </section>
+        {% endif %}
 
         <!-- Profile Card -->
-        <div class="card mb-4">
+        <div class="card mb-4 poppins-semibold">
           <div class="card-body d-flex align-items-center">
             <!-- Profile Picture -->
             <div class="profile-frame me-3" role="button">
@@ -23,48 +32,62 @@
               <h5 class="mb-1" id="name-display">{{ first_name }} {{ last_name }}</h5>
               <p class="mb-0 text-muted" id="department-name-display">{{ job }}</p>
             </div>
+
+            <!-- Google Binding -->
+            {% if session['google'] == 'false' %}
+              <a href="{{ url_for('google_bind') }}" class="d-flex justify-content-center align-items-center gap-3 google-bind-btn me-3">
+                  <img src="{{ url_for('static', filename='images/google.png') }}">
+                  <span class="poppins-bold">Connect with Google</span>
+              </a>
+            {% else %}
+              <button id="confirmDelete" class="d-flex justify-content-center align-items-center gap-3 google-bind-btn me-3">
+                  <img src="{{ url_for('static', filename='images/google.png') }}">
+                  <span class="poppins-bold">Sign out</span>
+              </button>
+            {% endif %}
+
             <!-- Edit & Save Button -->
-            <button class="btn btn-outline-primary" id="edit-btn">
-              <i class="bi bi-pencil-fill me-1"></i> Edit
+            <button class="standard-btn poppins-bold" id="edit-btn">
+              <i class="bi bi-pencil-fill me-1"></i> EDIT
             </button>
-            <button class="btn btn-success d-none" id="save-btn">
-              <i class="bi bi-check-lg me-1"></i> Save
+            <button class="submit-btn d-none poppins-bold" id="save-btn">
+              <i class="bi bi-check-lg me-1"></i> SAVE
             </button>
           </div>
         </div>
 
         <!-- Personal Information -->
-        <div class="card mb-4">
+        <div class="card mb-4 poppins-semibold">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="card-title mb-0 fw-bold">Personal Information</h5>
+              <h5 class="card-title mb-0 fw-bold">PERSONAL INFORMATION</h5>
             </div>
             <hr>
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="fw-semibold">First Name</label>
-                <input type="text" id="first_name" class="form-control" value="{{ first_name }}" disabled>
+                <input type="text" id="first_name" class="standard-input" value="{{ first_name }}" disabled>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="fw-semibold">Last Name</label>
-                <input type="text" id="last_name" class="form-control" value="{{ last_name }}" disabled>
+                <input type="text" id="last_name" class="standard-input" value="{{ last_name }}" disabled>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="fw-semibold">Email address</label>
-                <input type="text" id="email" class="form-control" value="{{ email }}" readonly>
+                <input type="text" id="email" class="standard-input" value="{{ email }}" disabled>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="fw-semibold">Employer ID</label>
-                <input type="text" id="id" class="form-control" value="{{ id }}" disabled>
+                <input type="text" id="id" class="standard-input" value="{{ id }}" disabled>
               </div>
               <div class="col-md-6 mb-3">
                 <label class="fw-semibold">Bio</label>
-                <input type="text" id="department-name" class="form-control" value="{{ job }}" disabled>
+                <input type="text" id="department-name" class="standard-input" value="{{ job }}" disabled>
               </div>
             </div>
           </div>
         </div>
-        <h3 class="mb-4 fw-bold">Change password</h3>
+        <h3 class="mb-4 poppins-bold">CHANGE PASSWORD</h3>
         <div class="card mb-4">
           <div class="container mt-4 d-flex justify-content-center">
             <!-- Edit Button -->
@@ -105,6 +128,28 @@
     </section>
   </div>
 </div>
+
+<!-- Warning modal for unbinding google -->
+<div class="modal fade" id="warningModal" tabindex="-1" data-bs-backdrop="static" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h1 class="modal-title fsm poppins-bold" id="exampleModalLabel">UNBIND GOOGLE ACCOUNT</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body poppins-semibold">
+              Are you sure you want to sign out of your Google account?
+          </div>
+          <div class="modal-footer">
+              <a href="{{ url_for('unbind_google') }}" class="warning-btn d-flex align-items-center justify-content-center gap-2">
+                  <span class="material-symbols-outlined fmd">logout</span>
+                  <span class="poppins-bold">SIGN OUT</span>
+              </a>
+          </div>
+      </div>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/employer_settings_change.js') }}"></script>
 <script src="{{ url_for('static', filename='js/change_password.js') }}"></script>
 {% endblock %}
