@@ -17,7 +17,7 @@ import database as db
 import bcrypt
 import os
 
-from database import connect_db , employer_update_profile , employee_update_profile , load_accounts
+from database import connect_db , employer_update_profile , employee_update_profile, current_user_upcoming_data_desk,current_user_upcoming_data_meeting,colleagues_in_office,available_meeting_room
 from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
@@ -69,7 +69,13 @@ def admin():
 @app.route('/user')
 @login_required
 def user():
-    return render_template('user.html', current_url=request.path)
+    id = session['data']['employeeID']
+    desk = current_user_upcoming_data_desk(id).to_dict(orient='records')
+    meeting = current_user_upcoming_data_meeting(id).to_dict(orient='records')
+    colleagues = colleagues_in_office(id).to_dict(orient='records')
+    available_meeting = available_meeting_room().to_dict(orient='records')
+
+    return render_template('user.html', current_url=request.path , upcoming_desk = desk,upcoming_meeting = meeting ,colleagues = colleagues, available_meeting = available_meeting)
 
 @app.route('/desk_manager')
 @login_required
