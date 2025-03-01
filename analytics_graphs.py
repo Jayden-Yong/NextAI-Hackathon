@@ -31,13 +31,14 @@ def daily_desk_utilization():
     res = res.loc[(res.index.year == current_year) & (res.index.month == current_month)]
 
     # Resample daily and calculate desk utilization percentage
-    res['Utilization (%)'] = (res.resample("D").size() / total_desks) * 100
+    daily_counts = res.resample("D").size()
+    daily_utilization = (daily_counts / total_desks) * 100
 
     # Plotting
     with plot_lock:
         sns.set_style('darkgrid')
         fig, ax = plt.subplots()
-        sns.lineplot(x=res.index, y='Utilization (%)', data=res, marker='o', ax=ax,palette='icefire',hue=res.index,legend=False)
+        sns.lineplot(x=daily_utilization.index, y=daily_utilization.values, marker='o', ax=ax)
         ax.set_title(f'Daily Desk Utilization ({current_year}/{current_month})')
         ax.set_xlabel('Date')
         ax.set_ylabel('Utilization (%)')
@@ -74,7 +75,7 @@ def department_booking_distribution():
     
         fig, ax = plt.subplots()
         sns.set_style('darkgrid')
-        sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu',hue=res['departmentName'],legend=True)  
+        sns.barplot(x=res['departmentName'], y=res['Frequency'], ax=ax ,palette='YlGnBu',hue=res['departmentName'],legend=False)  
         ax.set_title(f'Department-Wise Booking Distribution ({current_year}/{current_month})')
         ax.set_xlabel('Department')
         ax.set_ylabel('Usage of Desks and Meeting Room')
@@ -117,6 +118,7 @@ def employees_attendance_trend():
         img = io.BytesIO()
         plot.show()  # Display the plot to apply xticks before saving
         plt.xticks(rotation=90)  # Rotate x-axis labels
+        plt.ylim(0,monthly_counts['bookings'].sum())
         plt.tight_layout()
         plt.savefig(img, format='png', bbox_inches='tight')  # Save with adjusted labels
         plt.close('all')
