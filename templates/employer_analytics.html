@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5 poppins-bold">Workspace Analytics</h1>
+
+    <div class="row">
+        <!-- desk utilization -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/desk_utilization_graph" alt="Desk Utilization Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Track how desk usage changes over time to manage workspace efficiency.</p>
+                    <p class="card-text poppins-semibold">Identify peak days and optimize desk allocation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- employees attendance trend -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/employees_attendance_trend_graph" alt="Employees Attendance Trend Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular" > Track how often employees book desks over time.</p>
+                    <p class="card-text poppins-semibold"> Analyze seasonal patterns in attendance.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- desk availability status -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/desk_availability_status_graph" alt="Desk Availability Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Show the ratio of available vs. unavailable desks.</p>
+                    <p class="card-text poppins-semibold">Monitor available workspace to avoid shortages.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- weekly peak office usage -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/weekly_peak_office_usage_graph" alt="Weekly Peak Office Usage Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Shows which days of the week have the highest bookings.</p>
+                    <p class="card-text poppins-semibold">Helps in planning on-site meetings and events more effectively.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- department booking distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/department_booking_distribution_graph" alt="Department Booking Distribution Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular"> Show which departments use desks the most.</p>
+                    <p class="card-text poppins-semibold"> Understand which departments need more or fewer desks.</p>
+                </div>
+            </div>
+        </div>  
+        
+        <!-- preference day of employees -->
+        <div class="col-md-6 mb-4">
+            <div class="card" style="width: 40rem; height: 40rem;">
+                <img class="card-img-top" class="img-fluid" src="/preferred_days_by_employees_graph" alt="Preference Day By Employees Graph " style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="card-body">
+                    <p class="card-text poppins-regular">Display employees' preferred working days.</p>
+                    <p class="card-text poppins-semibold">Adjust resource allocation for popular days.</p>
+                </div>
+            </div>
+        </div>
+
+        
+
+        
+        
+    </div>
+</div>
+{% endblock %}
+

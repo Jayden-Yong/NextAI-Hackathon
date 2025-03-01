@@ -7,6 +7,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>{% block title %}{% endblock %}</title>
 
+        <!-- Page custom CSS -->
+        {% block customCSS %}{% endblock %} 
+
         <!-- CSS -->
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         
@@ -15,6 +18,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <!-- Poppins -->
         <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+
+
     </head>
     <body>
         <header class="d-flex align-items-center">
@@ -23,25 +29,100 @@
                     <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}">
                     <span class="poppins-bold fxl">Hybrid Hub</span>
                 </div>
-                <div class="d-flex align-items-center ms-4" id="nav-toggle">
-                    <i class="bi bi-list fxl"></i>
+
+                <div class="d-flex align-items-center ms-5 gap-3">
+
+                    <!-- Navigation bar for Admin -->
+                    {% if session['access'] == 0 %}
+                    <a href="{{ url_for('admin') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('admin') %}nav-active{% endif %}">
+                        <i class="bi bi-columns-gap"></i>
+                        <span class="poppins-semibold">Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('desk_manager') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('desk_manager') %}nav-active{% endif %}">
+                        <i class="bi bi-arrows-move"></i>
+                        <span class="poppins-semibold">Desk Manager</span>
+                    </a>
+                    <a href="{{ url_for('employee_manager') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('employee_manager') or current_url == url_for('add_employee') or current_url == url_for('add_department') or current_url.startswith(url_for('edit_employee', employee_id='')) or current_url.startswith(url_for('edit_department', deptID='')) %}nav-active{% endif %}">
+                        <i class="bi bi-people"></i>
+                        <span class="poppins-semibold">Employees</span>
+                    </a>
+                    <a href="{{url_for('ai_assistant')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('ai_assistant') %}nav-active{% endif %}" >
+                        <i class="bi bi-stars"></i>
+                        <span class="poppins-semibold">Ai Assistant</span>
+                    </a>
+
+                    <!-- Navigation bar for Employees -->
+                    {% else %}
+                    <a href="{{ url_for('user') }}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('user') %}nav-active{% endif %}">
+                        <i class="bi bi-columns-gap"></i>
+                        <span class="poppins-semibold">Dashboard</span>
+                    </a>
+                    <div class="dropdown">
+                        <a href="#" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('book_desk') or current_url == url_for('book_meeting') %}nav-active{% endif %}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-calendar4-event"></i>
+                            <span class="poppins-semibold">Booking</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-content mt-2">
+                            <li><a class="dropdown-item" href="{{ url_for('book_desk') }}">
+                                <span class="material-symbols-outlined">table_restaurant</span>
+                                <span class="poppins-medium">Book a Desk</span>
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('book_meeting') }}">
+                                <span class="material-symbols-outlined">meeting_room</span>
+                                <span class="poppins-medium">Book a Meeting Room</span>
+                            </a></li>
+                        </ul>
+                    </div>
+                    
+                    <a href="{{url_for('ai_assistant')}}" class="nav-item d-flex align-items-center gap-3 {% if current_url == url_for('ai_assistant') %}nav-active{% endif %}" >
+                        <i class="bi bi-stars"></i>
+                        <span class="poppins-semibold">Ai Assistant</span>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex align-items-center ms-auto">
+                    <div class="dropdown">
+                        <div class="profile-frame" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if session.get('picture') %}
+                                <img src="{{ session['picture'] }}" alt="Profile picture">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default.png') }}" alt="Profile picture">
+                            {% endif %}
+                        </div>
+                        <div id="profileMenu" class="dropdown-menu dropdown-content mt-2">
+                            <span class="d-block poppins-bold fxs">{{ session['data']['name'] }}</span>
+                            <div class="mt-2">
+                                <!-- settings for employer -->
+                                {% if session['access'] == 0 %}
+                                    <a href="{{ url_for('employer_setting')}}">
+                                        <i class="bi bi-gear"></i>
+                                        <span class="poppins-medium">Account Settings</span>
+                                    </a>
+                                {% else%}
+                                    <a href="{{ url_for('employee_setting')}}">
+                                        <i class="bi bi-gear"></i>
+                                        <span class="poppins-medium">Account Settings</span>
+                                    </a>
+                                {% endif %}
+                                <a class="logout-btn" href="{{ url_for('logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span class="poppins-medium">Log Out</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
         {% block content %}{% endblock %}
+
+        <!-- JS imports -->
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        {% block jsimports %}{% endblock %}
+
     </body>
 
-    <script>
-        document.getElementById("nav-toggle").onclick = function() {
-            var sidebar = document.getElementById("sidebar");
-            var mainContent = document.getElementById("main-content");
-            if (sidebar.style.width === "250px") {
-                sidebar.style.width = "0";
-                mainContent.style.marginLeft = "0";
-            } else {
-                sidebar.style.width = "250px";
-                mainContent.style.marginLeft = "250px";
-            }
-        }
-    </script>
 </html>

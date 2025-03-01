@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Customize layout{% endblock %}
+
+{% block jsimports %}
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="{{ url_for('static', filename='js/desk_manager.js') }}"></script>
+{% endblock %}
+
+{% block customCSS %}
+    <style>
+        /* Style for labels */
+        label {
+            font-family: 'Poppins', sans-serif;
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: rgb(75, 75, 75);
+        }
+
+        /* Style for input fields */
+        input {
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Style for the button */
+        button {
+            font-family: 'Poppins', sans-serif;
+            margin-top: 15px;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #396592;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }   
+
+        [aria-hidden] {
+            display: flex;
+            gap: 0.02ch;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+        }
+    </style>
+{% endblock %} 
+
+{% block content %}
+    <div class="banner">
+        <div class="container">
+            <h1 class="banner-content title-h1">
+                <span style="font-size: 2rem;">Customize</span>
+                <span class="sr-only" style="font-size: 3rem;">Your</span>
+                <span aria-hidden="true">
+                    <span>Y</span>
+                    <span class="stretch-o"></span>
+                    <span>ur</span>
+                </span>
+                <span style="font-size: 3rem;">Workspace Layout</span>
+            </h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-center gap-3 mt-5">
+            <div class="desk-setup d-flex align-items-center gap-3">
+
+                <div class="setup-icon d-flex justify-content-center align-items-center">
+                    <span class="material-symbols-outlined fxl">table_restaurant</span>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <span class="poppins-semibold">Number of Desks</span>
+                    <span id="desk_count" class="poppins-bold flg">{{ desks }}</span>
+                </div>
+
+                <div class="d-flex align-items-center ms-auto p-2">
+                    <button class="alter-btn d-flex align-items-center justify-content-center" onclick="createDesk()">
+                        <span class="material-symbols-outlined flg">add_2</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="desk-setup d-flex align-items-center gap-3">
+
+                <div class="setup-icon d-flex justify-content-center align-items-center">
+                    <span class="material-symbols-outlined fxl">meeting_room</span>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <span class="poppins-semibold">Number of Meeting Rooms</span>
+                    <span id="meeting_count" class="poppins-bold flg">{{ meetings }}</span>
+                </div>
+
+                <div class="d-flex align-items-center ms-auto p-2">
+                    <button class="alter-btn d-flex align-items-center justify-content-center" onclick="createMeeting()">
+                        <span class="material-symbols-outlined flg">add_2</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-3">
+            <div id="layout"></div>
+        </div>
+
+        <div class="d-flex justify-content-center align-items-center gap-2 my-4">
+            <button class="delete-desk-btn d-flex justify-content-center align-items-center gap-3" onclick="deleteSelectedDesk()">
+                <span class="material-symbols-outlined flg">delete</span>
+                <span class="poppins-semibold fxs">Delete selected</span>
+            </button>
+            <button class="save-btn d-flex justify-content-center align-items-center gap-3" onclick="saveLayout()">
+                <span class="material-symbols-outlined flg">cloud_upload</span>
+                <span class="poppins-semibold fxs">Save layout</span>
+            </button>
+        </div>
+        
+    </div>   
+
+    <script id="desks_json" type="application/json">{{ desks_json | safe }}</script>
+{% endblock %}

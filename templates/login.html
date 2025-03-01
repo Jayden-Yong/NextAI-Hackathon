@@ -61,7 +61,7 @@
                 
                 <form action="{{ url_for('verify_login') }}" method="post" onsubmit="return validateForm()" style="width: 100%;">
                     <div class="mb-4">
-                        <input type="email" id="email" class="text-field poppins-semibold fxs" name="email" placeholder="Enter your email">
+                        <input type="text" id="email" class="text-field poppins-semibold fxs" name="id" placeholder="Enter your email or ID">
                         <div id="emailError" class="error-message poppins-semibold"></div>
                     </div>
                     
@@ -70,7 +70,12 @@
                         <div id="passwordError" class="error-message poppins-semibold"></div>
                     </div>
                     
-                    <button class="login-btn poppins-bold fxs" type="submit">Login</button>
+                    <button class="login-btn poppins-bold fxs mb-4" type="submit">Login</button>
+
+                    <a href="{{ url_for('google_login') }}" class="google-login-btn poppins-bold fxs gap-3">
+                        <img src="{{ url_for('static', filename='images/google.png') }}">
+                        <span>Login with Google</span>
+                    </a>
                 </form>
 
             </div>
@@ -87,7 +92,7 @@
                 document.getElementById('passwordError').innerText = '';
     
                 if (userID === '') {
-                    document.getElementById('emailError').innerText = 'User ID is required';
+                    document.getElementById('emailError').innerText = 'User ID or email is required';
                     isValid = false;
                 }
     
@@ -96,9 +101,7 @@
                     isValid = false;
                 }
     
-                // Add more custom validation logic here if needed
-    
-                return isValid; // Return true if validation passes, false otherwise
+                return isValid; 
             }
         </script>
     </body>

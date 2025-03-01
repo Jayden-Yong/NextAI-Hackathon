@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Booking | Desks{% endblock %}
+
+{% block content %}
+<div class="banner">
+    <div class="container">
+        <div class="banner-content poppins-semibold display-5"><span>Desk Booking</span></div>
+    </div>
+</div>
+
+<section class="container">
+    <div class="booking-widget d-flex">
+        <div class="booking-widget-content d-flex align-items-center">
+            <div>
+                <input id="date-input" type="date" class="poppins-semibold theme-3">
+                <span class="poppins-semibold d-block fxxl mt-1">Let's see who's in.</span>
+            </div>
+        </div>
+
+        <div class="counter-group d-flex gap-3 ms-auto">
+            <div class="booking-widget-counter">
+                <span class="poppins-semibold theme-3">IN-OFFICE TODAY</span>
+                <span id="active-counter" class="d-block poppins-bold display-4 mt-1">{{ session['bookingData']['active'] }}</span>
+            </div>
+            <div class="booking-widget-counter">
+                <span class="poppins-semibold theme-3">TEAM MEMBERS</span>
+                <span id="member-counter" class="d-block poppins-bold display-4 mt-1">{{ session['bookingData']['active_members'] }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if message %}
+<section class="container">
+    <div class="success-msg">
+        <span class="poppins-medium">{{ message }}</span>
+    </div>
+</section>
+{% endif %}
+
+<section class="container">
+    <div id="map-layout"></div>
+</section>
+
+<section class="container">
+    <form action="{{ url_for('booking_logic') }}" method="POST" onsubmit="return bookDesk()">
+        <input id="deskID" class="d-none" type="text" name="deskID">
+        <input id="target-date" class="d-none" type="text" name="target-date">
+
+        <div class="d-flex align-items-center gap-4">
+            <button class="submit-btn d-flex align-items-center justify-content-center gap-3" type="submit">
+                <span class="material-symbols-outlined fmd">event_available</span>
+                <span class="poppins-semibold">Book this desk</span>
+            </button>
+    
+            <span id="selectDeskError" class="d-none poppins-semibold fmd text-danger">! Please select a desk</span>
+        </div>
+    </form>
+</section>
+
+<script id="desks_json" type="application/json">{{ session['bookingData']['desks_json'] | safe }}</script>
+<script id="booked_json" type="application/json">{{ session['bookingData']['booked_json'] | safe }}</script>
+{% endblock %}
+
+{% block jsimports %}
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}
