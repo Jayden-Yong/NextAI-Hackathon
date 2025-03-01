@@ -63,7 +63,9 @@ def home():
 @app.route('/admin')
 @login_required
 def admin():
-    return render_template('admin.html', current_url=request.path)
+    today = datetime.strptime(session['date'], "%d %B %Y").strftime("%Y-%m-%d")
+    active = db.get_headcount(today)
+    return render_template('admin.html', current_url=request.path, active=active)
 
 @app.route('/user')
 @login_required

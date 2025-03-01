@@ -554,6 +554,7 @@ body{
     backdrop-filter: blur(4px);
     width: 20%;
     height: 100%;
+    color: #000;
 }
 
 .in-office-counter span:first-child{
