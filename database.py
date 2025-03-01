@@ -2,6 +2,7 @@ import pandas as pd
 from datetime import datetime
 from sqlalchemy import create_engine, text
 from config import DB_CONFIG
+from dateutil.relativedelta import relativedelta
 
 # host user password database 
 password = DB_CONFIG.get("password")
@@ -249,3 +250,52 @@ def unbind_google(employeeID):
     with engine.begin() as con:
         con.execute(query, {"id": employeeID})
         con.commit()
+
+def current_user_upcoming_data_meeting(employeeID):
+    current_time  = datetime.now()
+    target_time = current_time + relativedelta(years = 2)
+
+    current_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
+    target_time = target_time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    upcoming_booking = load_meeting_bookings(target_start=current_time,target_end=target_time)
+    upcoming_booking = upcoming_booking.loc[upcoming_booking['employeeID']==employeeID]
+    upcoming_booking.drop(columns = ['coordX','coordY'] , inplace = True)
+    return upcoming_booking
+
+def current_user_upcoming_data_desk(employeeID):
+    today = datetime.today()
+
+    upcoming_booking = load_desk_bookings()
+    upcoming_booking['date'] = pd.to_datetime(upcoming_booking['date'])
+    upcoming_booking = upcoming_booking.loc[(upcoming_booking['date'] >= today) & (upcoming_booking['employeeID']==employeeID)]
+    upcoming_booking.drop(columns = ['coordX','coordY'],inplace = True)
+
+    return upcoming_booking
+
+def colleagues_in_office(id):
+    con = connect_db()
+    query = """SELECT DISTINCT e.employeeID, e.name
+            FROM (
+                SELECT employeeID FROM booking WHERE date = CURDATE()
+                UNION
+                SELECT employeeID FROM bookmeeting WHERE DATE(startTime) = CURDATE()
+            ) AS todays_booking
+            JOIN employee e ON todays_booking.employeeID = e.employeeID
+            WHERE e.employeeID <> %(id)s ;
+            """
+
+    result = pd.read_sql_query(query, con, params={"id": id}) 
+    return result
+
+def available_meeting_room():
+    con = connect_db()
+    query = """SELECT d.deskID
+                FROM desk d
+                LEFT JOIN bookmeeting bm
+                    ON d.deskID = bm.deskID
+                    AND DATE(bm.startTime) = CURDATE()
+                WHERE d.deskID LIKE 'M%%'
+                AND bm.deskID IS NULL;"""
+    result = pd.read_sql_query(query, con) 
+    return result

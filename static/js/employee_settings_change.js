@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const department_name = document.getElementById("department-name").value;
         const id = document.getElementById("id").value;
         const prefDays = document.getElementById("preference-day").value;
-        console.log("Sending data:", { first_name, last_name, email, id, department_name, prefDays }); // Debugging
 
         fetch("/update_employee_profile", {
             method: "POST",

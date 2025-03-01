@@ -45,7 +45,6 @@ def daily_desk_utilization():
         ax.tick_params(axis='x', labelsize=6) 
         plt.xticks(rotation = 90)
         plt.tight_layout()
-        
 
         # Save the plot to a BytesIO object
         img = io.BytesIO()
@@ -95,7 +94,6 @@ def employees_attendance_trend():
     # Get current year and current month (e.g. if current month is Feb, show Jan-Feb)
     current_year = datetime.now().year
 
-
     # Copy booking data and ensure 'date' column is datetime
     res = booking.copy()
     res['date'] = pd.to_datetime(res['date'])
@@ -105,7 +103,6 @@ def employees_attendance_trend():
     # Resample the data by month using the valid alias 'M' (month end)
     monthly_counts = res.resample('ME', on='date').size().reset_index()
     monthly_counts.columns = ['month', 'bookings']
-    print(monthly_counts)
     with plot_lock:
         sns.set_style('darkgrid')
         plot = (
@@ -216,7 +213,6 @@ def weekly_peak_office_usage():
         ordered=True
     )
     weekly_bookings = weekly_bookings.sort_values('date')
-    # print(weekly_bookings)
 
     # Create Doughnut Chart
     with plot_lock:
@@ -243,11 +239,7 @@ def weekly_peak_office_usage():
 
     return img
 
-
-
 # graph for employee
-
-
 
 def personal_desk_booking_history(user_details):
     user_data = get_user_data_df(user_details)

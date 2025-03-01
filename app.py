@@ -1,5 +1,4 @@
-from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from flask import Flask, render_template ,request,jsonify, url_for, redirect, session, abort, Response, send_file
 from datetime import datetime, timedelta
 from functools import wraps
 from google.oauth2 import id_token
@@ -17,7 +16,7 @@ import database as db
 import bcrypt
 import os
 
-from database import connect_db , employer_update_profile , employee_update_profile , load_accounts
+from database import connect_db , employer_update_profile , employee_update_profile, current_user_upcoming_data_desk,current_user_upcoming_data_meeting,colleagues_in_office,available_meeting_room
 from sqlalchemy import text
 
 # Allow http transport for OAuth during development (will be removed in production)
@@ -69,7 +68,13 @@ def admin():
 @app.route('/user')
 @login_required
 def user():
-    return render_template('user.html', current_url=request.path)
+    id = session['data']['employeeID']
+    desk = current_user_upcoming_data_desk(id).to_dict(orient='records')
+    meeting = current_user_upcoming_data_meeting(id).to_dict(orient='records')
+    colleagues = colleagues_in_office(id).to_dict(orient='records')
+    available_meeting = available_meeting_room().to_dict(orient='records')
+
+    return render_template('user.html', current_url=request.path , upcoming_desk = desk,upcoming_meeting = meeting ,colleagues = colleagues, available_meeting = available_meeting)
 
 @app.route('/desk_manager')
 @login_required
@@ -429,8 +434,7 @@ def change_password():
 
     current = session.get('data')
     current_id = current['employeeID']
-
-    hashed_pw = bcrypt.generate_password_hash(new_password).decode('utf-8')
+    hashed_pw = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
     
     engine = connect_db()
     query = text("""
@@ -692,73 +696,92 @@ def save_layout():
 # route for employer analytics page
 @app.route('/desk_utilization_graph')
 def desk_utilization_graph():
-    img0 = analytics_graphs.daily_desk_utilization()
-    return Response(img0, mimetype='image/png')
+    try:
+        img0 = analytics_graphs.daily_desk_utilization()
+        return Response(img0, mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
+    
 
 @app.route('/department_booking_distribution_graph')
 def department_booking_distribution_graph():
-    img1 = analytics_graphs.department_booking_distribution()
-    return Response(img1, mimetype='image/png')
+    try: 
+        img1 = analytics_graphs.department_booking_distribution()
+        return Response(img1, mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/employees_attendance_trend_graph')
 def employees_attendance_trend_graph():
-    img2 = analytics_graphs.employees_attendance_trend()
-    return Response(img2 ,mimetype='image/png')
+    try:
+        img2 = analytics_graphs.employees_attendance_trend()
+        return Response(img2 ,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
+
 
 @app.route('/desk_availability_status_graph')
 def desk_availability_status_graph():
-    img3 = analytics_graphs.desk_availability_status()
-    return Response(img3,mimetype='image/png')
+    try:
+        img3 = analytics_graphs.desk_availability_status()
+        return Response(img3,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/preferred_days_by_employees_graph')
 def preferred_days_by_employees_graph():
-    img4 = analytics_graphs.preferred_days_by_employees()
-    return Response(img4,mimetype='image/png')
+    try:
+        img4 = analytics_graphs.preferred_days_by_employees()
+        return Response(img4,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/weekly_peak_office_usage_graph')
 def weekly_peak_office_usage_graph():
-    img5 = analytics_graphs.weekly_peak_office_usage()
-    return Response(img5,mimetype='image/png')
+    try:
+        img5 = analytics_graphs.weekly_peak_office_usage()
+        return Response(img5,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 # route for employee analytics graph
 @app.route('/personal_desk_booking_history_graph')
 def personal_desk_booking_history_graph():
-    user_details = get_user_details()
-    img0 = analytics_graphs.personal_desk_booking_history(user_details)
-    return Response(img0,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img0 = analytics_graphs.personal_desk_booking_history(user_details)
+        return Response(img0,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/preferred_desk_usage_frequency_graph')
 def preferred_desk_usage_frequency_graph():
-    user_details = get_user_details()
-    img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
-    return Response(img1,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img1 = analytics_graphs.preferred_desk_usage_frequency(user_details)
+        return Response(img1,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/average_monthly_attendance_graph')
 def average_monthly_attendance_graph():
-    user_details = get_user_details()
-    img2 = analytics_graphs.average_monthly_attendance(user_details)
-    return Response(img2,mimetype='image/png')
+    try:
+        user_details = get_user_details()
+        img2 = analytics_graphs.average_monthly_attendance(user_details)
+        return Response(img2,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 @app.route('/comparison_of_booking_patterns_with_peers_graph')
 def comparison_of_booking_patterns_with_peers_graph():
-    user_details = get_user_details()
-    img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
-    return Response(img3,mimetype='image/png')
-    
+    try:
+        user_details = get_user_details()
+        img3 = analytics_graphs.comparison_of_booking_patterns_with_peers(user_details)
+        return Response(img3,mimetype='image/png')
+    except:
+        return send_file('static/images/not-enough-data.png',mimetype='image/png')
 
 
 if __name__ == '__main__':
     # Runs the app in debug mode
     app.run(debug=True,port=5000)
-
-# analytics page route ,can delete in final version(scared need to use back later)
-
-# @app.route('/employer_analytics')
-# @login_required
-# def employer_analytics():
-#     return render_template('employer_analytics.html',current_url=request.path)
-
-# @app.route('/employee_analytics')
-# @login_required
-# def employee_analytics():
-#     return render_template('employee_analytics.html',current_url=request.path)

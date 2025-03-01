@@ -5,44 +5,179 @@
 {% block content %}
 <section>
     <div class="container mt-4">
+        <!-- Welcome Message -->
         <span class="poppins-semibold fxl">Welcome {{ session['data']['name'] }}!</span>
 
+        <!-- Info Row (3 columns) -->
         <div class="row row-cols-3 mt-3">
+            <!-- Upcoming Bookings -->
             <div>
                 <div class="info-item d-flex gap-3">
                     <div class="info-icon d-flex align-items-center justify-content-center">
                         <i class="bi bi-calendar4-event"></i>
                     </div>
-                    <div class="d-flex align-items-start">
+                    <div class="d-flex flex-column align-items-start">
                         <span class="poppins-medium fxxs">Upcoming Bookings</span>
+                        <div class="poppins-medium fxxs">
+                            {{ (upcoming_desk|length + upcoming_meeting|length) }}
+                        </div>
                     </div>
-                    <!-- Add data here -->
                 </div>
             </div>
+            <!-- Colleagues In Office -->
             <div>
                 <div class="info-item d-flex gap-3">
                     <div class="info-icon d-flex align-items-center justify-content-center">
                         <i class="bi bi-people"></i>
                     </div>
-                    <div class="d-flex align-items-start">
+                    <div class="d-flex flex-column align-items-start">
                         <span class="poppins-medium fxxs">Colleagues In Office</span>
+                        <div class="poppins-medium fxxs">
+                            {{ colleagues|length }}
+                        </div>
                     </div>
-                    <!-- Add data here -->
                 </div>
             </div>
+            <!-- Available Meeting Rooms -->
             <div>
                 <div class="info-item d-flex gap-3">
                     <div class="info-icon d-flex align-items-center justify-content-center">
                         <i class="bi bi-door-open"></i>
                     </div>
-                    <div class="d-flex align-items-start">
+                    <div class="d-flex flex-column align-items-start">
                         <span class="poppins-medium fxxs">Available Meeting Rooms</span>
+                        <div class="poppins-medium fxxs">
+                            {{ available_meeting|length }}
+                        </div>
                     </div>
-                    <!-- Add data here -->
                 </div>
             </div>
         </div>
-    </div>    
+
+        <!-- Row for Upcoming Desk & Meeting Bookings -->
+        <div class="row mt-4">
+            <!-- Upcoming Desk Bookings Card -->
+            <div class="col-12 col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header text-white " style="background-color: rgb(87, 65, 255);">
+                        <h5 class="card-title mb-0">Upcoming Desk Bookings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_desk and upcoming_desk|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Booking ID</th>
+                                        <th scope="col">Desk ID</th>
+                                        <th scope="col">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in upcoming_desk %}
+                                    <tr>
+                                        <td>{{ booking.bookingID}}</td>
+                                        <td>{{ booking.deskID }}</td>
+                                        <td>{{ booking.date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="poppins-regular">No upcoming desk bookings</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Meeting Bookings Card -->
+            <div class="col-12 col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header text-white" style="background-color: rgb(87, 65, 255);">
+                        <h5 class="card-title mb-0">Upcoming Meeting Bookings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if upcoming_meeting and upcoming_meeting|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Meeting ID</th>
+                                        <th scope="col">Room ID</th>
+                                        <th scope="col">Start Time</th>
+                                        <th scope="col">End Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in upcoming_meeting %}
+                                    <tr>
+                                        <td>{{ booking.meetingID }}</td>
+                                        <td>{{ booking.deskID }}</td>
+                                        <td>{{ booking.startTime }}</td>
+                                        <td>{{ booking.endTime }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="mb-0 text-muted">No upcoming meeting bookings</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3 mt-3">
+            <!-- Colleagues In Office Card -->
+            <div class="col-12 col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex align-items-center text-white" style="background-color: rgb(87, 65, 255);">
+                  <!-- Icon -->
+                  <i class="bi bi-people fs-5 me-2"></i>
+                  <h5 class="mb-0">Colleagues In Office</h5>
+                </div>
+                <div class="card-body">
+                  {% if colleagues and colleagues|length > 0 %}
+                    <ul class="list-group list-group-flush">
+                      {% for colleague in colleagues %}
+                        <li class="list-group-item p-2">
+                          {{ colleague.name }} ({{ colleague.employeeID }})
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p class="text-muted mb-0">No colleagues in office today</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          
+            <!-- Available Meeting Rooms Card -->
+            <div class="col-12 col-md-6">
+              <div class="card h-100 shadow-sm">
+                <!-- You can replace the inline color with a custom class or bg-* utility -->
+                <div class="card-header text-white" style="background-color: rgb(87, 65, 255);">
+                  <h5 class="mb-0">Available Meeting Rooms</h5>
+                </div>
+                <div class="card-body">
+                  {% if available_meeting and available_meeting|length > 0 %}
+                    <ul class="list-group list-group-flush">
+                      {% for room in available_meeting %}
+                        <li class="list-group-item p-2">
+                          <strong>{{ room.deskName }}</strong> (ID: {{ room.deskID }})
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p class="text-muted mb-0">No rooms available today.</p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+    </div>
 </section>
 <section class="container mt-5">
     <h1 class="text-center mb-5 poppins-bold">Workspace Analytics</h1>
@@ -54,9 +189,8 @@
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
                 </div>
-                <img class="card-img-top img-fluid lazy-load" 
-                    data-src="/personal_desk_booking_history_graph" 
-                    alt="Personal Desk Booking History Graph " 
+                <img class="card-img-top img-fluid lazy-load" data-src="/personal_desk_booking_history_graph"
+                    alt="Personal Desk Booking History Graph "
                     style="width: 100%; height: 100%; object-fit: contain; display: none;">
                 <div class="card-body">
                     <p class="card-text poppins-regular">Displays your past bookings over time.</p>
@@ -71,9 +205,8 @@
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
                 </div>
-                <img class="card-img-top img-fluid lazy-load" 
-                    data-src="/preferred_desk_usage_frequency_graph" 
-                    alt="Preferred Desk Usage Frequency Graph " 
+                <img class="card-img-top img-fluid lazy-load" data-src="/preferred_desk_usage_frequency_graph"
+                    alt="Preferred Desk Usage Frequency Graph "
                     style="width: 100%; height: 100%; object-fit: contain; display: none;">
                 <div class="card-body">
                     <p class="card-text poppins-regular">Shows which desks you book most often.</p>
@@ -88,9 +221,8 @@
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
                 </div>
-                <img class="card-img-top img-fluid lazy-load" 
-                    data-src="/average_monthly_attendance_graph" 
-                    alt="Average Monthly Attendance Graph " 
+                <img class="card-img-top img-fluid lazy-load" data-src="/average_monthly_attendance_graph"
+                    alt="Average Monthly Attendance Graph "
                     style="width: 100%; height: 100%; object-fit: contain; display: none;">
                 <div class="card-body">
                     <p class="card-text poppins-regular">Shows the percentage of office vs. remote work days.</p>
@@ -105,13 +237,14 @@
                 <div class="loading-container">
                     <div class="loading-spinner"></div>
                 </div>
-                <img class="card-img-top img-fluid lazy-load" 
-                    data-src="/comparison_of_booking_patterns_with_peers_graph" 
-                    alt="Comparison of Booking Pattern With Peers Graph " 
+                <img class="card-img-top img-fluid lazy-load"
+                    data-src="/comparison_of_booking_patterns_with_peers_graph"
+                    alt="Comparison of Booking Pattern With Peers Graph "
                     style="width: 100%; height: 100%; object-fit: contain; display: none;">
                 <div class="card-body">
                     <p class="card-text poppins-regular">Compares your booking habits with your department/team.</p>
-                    <p class="card-text poppins-semibold">Provides insights into hybrid work preferences among colleagues.</p>
+                    <p class="card-text poppins-semibold">Provides insights into hybrid work preferences among
+                        colleagues.</p>
                 </div>
             </div>
         </div>
