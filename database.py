@@ -299,3 +299,14 @@ def available_meeting_room():
                 AND bm.deskID IS NULL;"""
     result = pd.read_sql_query(query, con) 
     return result
+
+def get_headcount(date):
+    con = connect_db()
+
+    query = f"SELECT * FROM booking WHERE date = '{date}'"
+    booked_desk = len(pd.read_sql(query,con))
+
+    query = f"SELECT * FROM bookmeeting WHERE DATE(startTime) = '{date}'"
+    booked_meeting = len(pd.read_sql(query,con))
+
+    return booked_desk + booked_meeting

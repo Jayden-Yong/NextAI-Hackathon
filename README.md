@@ -1,12 +1,12 @@
-# HybridHub
+# HybridHub 💻
 
 HybridHub is a hybrid work management assistant website designed to help startup companies reduce overhead costs by optimizing office space and enabling flexible work arrangements. Our platform provides powerful analytics, intuitive UI customization, and AI-driven insights to improve workspace efficiency and employee satisfaction.
 
-## Problem Statement
+## Problem Statement 📃
 
 Many startups face high overhead costs due to renting large office spaces, even though their teams might not require full-time occupancy. Traditional office setups often result in underutilized desks and meeting rooms. Additionally, as work becomes more flexible, both employers and employees need a better way to manage and visualize workspace usage and trends.
 
-## Our Solution
+## Our Solution 🎯
 
 **HybridHub** addresses these challenges by offering:
 - **Flexible Workspace Management:**  
@@ -29,7 +29,7 @@ Many startups face high overhead costs due to renting large office spaces, even 
   - Allows both employers and employees to change their personal information such as name , preference days to work in office
   - Changing password is also available , where password is hashed via bcrpyt to protect user's account.
 
-## Impact
+## Impact 📈
 
 By using HybridHub, startup companies can:
 - **Reduce Costs:**  
@@ -41,7 +41,7 @@ By using HybridHub, startup companies can:
 - **Improve Resource Allocation:**  
   Visualize workspace usage and adjust resources dynamically to meet changing demands.
 
-## Features
+## Features 💡
 
 - **Dynamic Analytics Dashboard:**  
   Real-time graphs and trends such as daily desk utilization and booking history.
@@ -62,7 +62,7 @@ By using HybridHub, startup companies can:
   Google login for streamlined and secure user access.
 
 
-# HybridHub Installation Guide
+# HybridHub Installation Guide 📖
 
 ## Step 1: Create a Virtual Environment
 Before installing dependencies, create and activate a virtual environment.
