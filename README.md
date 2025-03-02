@@ -89,7 +89,7 @@ Execute the script to set up the database.
 
 ## Step 4: Configure API Keys
 Go to the Vanna Website and get your API key and model name.
-Modify the config.py file in the project directory.
+Modify the **config.py** file in the project directory with **database info** and the **Vanna AI API key**.
 Add your configuration for database and Vanna API key:
 
 ## Step 5: Run the Application
@@ -99,5 +99,14 @@ python app.py
 python vanna_ai.py
 ```
 (Note : Please uncomment the vanna_train() in vanna_ai.py if u are first using this project)
+
+## Your first login
+The SQL script from hybridhub.sql will only import the structure of the database designed for HybridHub.
+However, an admin account is included in the database with the following information:
+
+**Admin ID**: A1
+**Password**: admin123
+
+**NOTE**: To use a Google Account to login, please bind the Google Account with the given admin account via **Account Settings** once signed in.
 
 ### Your HybridHub system should now be up and running! 🚀

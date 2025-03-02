@@ -2,7 +2,7 @@ CREATE DATABASE  IF NOT EXISTS `hybridhub` /*!40100 DEFAULT CHARACTER SET utf8mb
 USE `hybridhub`;
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: hybridhub
+-- Host: localhost    Database: hybridhub
 -- ------------------------------------------------------
 -- Server version	8.0.40
 
@@ -36,6 +36,15 @@ CREATE TABLE `accounts` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `accounts`
+--
+
+LOCK TABLES `accounts` WRITE;
+/*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
+INSERT INTO `accounts` VALUES (1,NULL,'$2y$10$cuH2lQNVCpTuOxxOv9c9TuZutR/vF9fSWChBWoDWAMnb7fdsevN3K','A1',0);
+/*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `booking`
@@ -57,6 +66,14 @@ CREATE TABLE `booking` (
 ) ENGINE=InnoDB AUTO_INCREMENT=271 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `booking`
+--
+
+LOCK TABLES `booking` WRITE;
+/*!40000 ALTER TABLE `booking` DISABLE KEYS */;
+/*!40000 ALTER TABLE `booking` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `bookmeeting`
@@ -79,6 +96,14 @@ CREATE TABLE `bookmeeting` (
 ) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `bookmeeting`
+--
+
+LOCK TABLES `bookmeeting` WRITE;
+/*!40000 ALTER TABLE `bookmeeting` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bookmeeting` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `department`
@@ -94,6 +119,15 @@ CREATE TABLE `department` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `department`
+--
+
+LOCK TABLES `department` WRITE;
+/*!40000 ALTER TABLE `department` DISABLE KEYS */;
+INSERT INTO `department` VALUES ('ADM','Admins');
+/*!40000 ALTER TABLE `department` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `desk`
@@ -110,6 +144,14 @@ CREATE TABLE `desk` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `desk`
+--
+
+LOCK TABLES `desk` WRITE;
+/*!40000 ALTER TABLE `desk` DISABLE KEYS */;
+/*!40000 ALTER TABLE `desk` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `employee`
@@ -130,7 +172,15 @@ CREATE TABLE `employee` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `employee`
+--
 
+LOCK TABLES `employee` WRITE;
+/*!40000 ALTER TABLE `employee` DISABLE KEYS */;
+INSERT INTO `employee` VALUES ('A1','John Doe',NULL,'ADM');
+/*!40000 ALTER TABLE `employee` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -141,4 +191,4 @@ CREATE TABLE `employee` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-02  0:21:09
+-- Dump completed on 2025-03-02 11:46:59
