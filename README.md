@@ -104,8 +104,8 @@ python vanna_ai.py
 The SQL script from hybridhub.sql will only import the structure of the database designed for HybridHub.
 However, an admin account is included in the database with the following information:
 
-**Admin ID**: A1
-**Password**: admin123
+Admin ID: **A1**
+Password: **admin123**
 
 **NOTE**: To use a Google Account to login, please bind the Google Account with the given admin account via **Account Settings** once signed in.
 
